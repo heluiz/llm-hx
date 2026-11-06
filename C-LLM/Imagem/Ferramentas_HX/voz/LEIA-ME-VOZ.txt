@@ -1,0 +1,15 @@
+VOICEBOX - configuracao HX (17/10/2026, criado pelo Claude)
+
+Abrir:   Desktop\LLM_HX\3 - Voz (Voicebox)\1-ABRIR-VOICEBOX.bat   (garante modelos em C:\LLM\Voz\models)
+Modelos: C:\LLM\Voz\models  (variavel de usuario VOICEBOX_MODELS_DIR)
+Dados do app (perfis, historico, audios): C:\Users\heluiz\AppData\Roaming\sh.voicebox.app
+Audios de teste exportados: C:\LLM\Voz\output
+
+Padrao recomendado: Qwen3-TTS 1.7B (melhor qualidade, mesma velocidade do 0.6B nesta maquina)
+Transcricao/ditado: Whisper Turbo, idioma pt
+
+voz_diagnostico.bat   inventario somente leitura -> voz_diagnostico.txt
+voz_teste.bat         teste real (gera 2 audios, exporta e transcreve) -> resultado_voz.json
+voz_liberar_vram.bat  descarrega os modelos do Voicebox da GPU (use antes do ComfyUI)
+
+ATENCAO: nao use o botao "Change" da tela Models do Voicebox - ele MOVE os modelos.

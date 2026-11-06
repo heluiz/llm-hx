@@ -1,0 +1,921 @@
+{
+ "id": "hx-Z-Image-Transformar-Foto",
+ "revision": 0,
+ "last_node_id": 17,
+ "last_link_id": 19,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "LoadImage",
+   "pos": [
+    40,
+    60
+   ],
+   "size": [
+    340,
+    420
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      1
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "HELUIZ_FOTO_3X4.jpeg",
+    "image"
+   ],
+   "title": "1) FOTO DE ENTRADA (clique para trocar / upload)",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 2,
+   "type": "ImageScaleToTotalPixels",
+   "pos": [
+    40,
+    520
+   ],
+   "size": [
+    340,
+    130
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      2,
+      11
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageScaleToTotalPixels"
+   },
+   "widgets_values": [
+    "lanczos",
+    0.4,
+    16
+   ],
+   "title": "2) Resolução de trabalho (megapixels)",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 3,
+   "type": "Canny",
+   "pos": [
+    420,
+    60
+   ],
+   "size": [
+    300,
+    90
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 2
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      3,
+      7
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "Canny"
+   },
+   "widgets_values": [
+    0.1,
+    0.3
+   ],
+   "title": "Bordas (Canny) para o ControlNet"
+  },
+  {
+   "id": 4,
+   "type": "PreviewImage",
+   "pos": [
+    420,
+    190
+   ],
+   "size": [
+    300,
+    330
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PreviewImage"
+   },
+   "widgets_values": [],
+   "title": "Prévia das bordas"
+  },
+  {
+   "id": 5,
+   "type": "UNETLoader",
+   "pos": [
+    760,
+    60
+   ],
+   "size": [
+    360,
+    90
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      4
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader"
+   },
+   "widgets_values": [
+    "z_image_turbo_int8_convrot.safetensors",
+    "default"
+   ],
+   "title": "Modelo Z-Image Turbo INT8",
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 6,
+   "type": "CLIPLoader",
+   "pos": [
+    760,
+    180
+   ],
+   "size": [
+    360,
+    110
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      9,
+      10
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen_3_4b_fp8_mixed.safetensors",
+    "lumina2",
+    "default"
+   ],
+   "title": "Codificador de texto Qwen3 4B FP8",
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 7,
+   "type": "VAELoader",
+   "pos": [
+    760,
+    320
+   ],
+   "size": [
+    360,
+    60
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      6,
+      12,
+      18
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "ae.safetensors"
+   ],
+   "title": "VAE",
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 8,
+   "type": "ModelPatchLoader",
+   "pos": [
+    760,
+    410
+   ],
+   "size": [
+    360,
+    60
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL_PATCH",
+     "type": "MODEL_PATCH",
+     "links": [
+      5
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ModelPatchLoader"
+   },
+   "widgets_values": [
+    "Z-Image-Turbo-Fun-Controlnet-Union.safetensors"
+   ],
+   "title": "ControlNet Fun Union (model patch)",
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 9,
+   "type": "QwenImageDiffsynthControlnet",
+   "pos": [
+    1160,
+    60
+   ],
+   "size": [
+    340,
+    170
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 4
+    },
+    {
+     "name": "model_patch",
+     "type": "MODEL_PATCH",
+     "link": 5
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 6
+    },
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      8
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "QwenImageDiffsynthControlnet"
+   },
+   "widgets_values": [
+    0.7,
+    0.0,
+    0.8
+   ],
+   "title": "3) INTENSIDADE DA REFERÊNCIA (strength)",
+   "color": "#322",
+   "bgcolor": "#533"
+  },
+  {
+   "id": 10,
+   "type": "ModelSamplingAuraFlow",
+   "pos": [
+    1160,
+    270
+   ],
+   "size": [
+    340,
+    90
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 8
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      13
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ModelSamplingAuraFlow"
+   },
+   "widgets_values": [
+    3.0,
+    "flow"
+   ]
+  },
+  {
+   "id": 11,
+   "type": "CLIPTextEncode",
+   "pos": [
+    760,
+    520
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 9
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      14
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode"
+   },
+   "widgets_values": [
+    "Professional corporate headshot of a man in his 40s with short dark brown hair, receding hairline, full salt-and-pepper beard, brown eyes, light tan skin, wearing a navy blue suit, white shirt and dark tie, soft studio lighting, neutral grey background, sharp focus, realistic skin texture, 85mm lens, photorealistic"
+   ],
+   "title": "4) PROMPT POSITIVO",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 12,
+   "type": "CLIPTextEncode",
+   "pos": [
+    760,
+    780
+   ],
+   "size": [
+    460,
+    140
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 10
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      15
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode"
+   },
+   "widgets_values": [
+    "blurry, deformed face, distorted eyes, extra fingers, low quality, watermark, text, cartoon"
+   ],
+   "title": "PROMPT NEGATIVO (só tem efeito com cfg > 1)",
+   "color": "#322",
+   "bgcolor": "#533"
+  },
+  {
+   "id": 13,
+   "type": "VAEEncode",
+   "pos": [
+    420,
+    560
+   ],
+   "size": [
+    300,
+    50
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "pixels",
+     "type": "IMAGE",
+     "link": 11
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 12
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      16
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEEncode"
+   },
+   "widgets_values": [],
+   "title": "Foto → latente"
+  },
+  {
+   "id": 14,
+   "type": "KSampler",
+   "pos": [
+    1260,
+    400
+   ],
+   "size": [
+    340,
+    320
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 13
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 14
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 15
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 16
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      17
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    20261017,
+    "randomize",
+    8,
+    1.0,
+    "res_multistep",
+    "simple",
+    0.55
+   ],
+   "title": "5) GERAÇÃO (semente, passos, denoise)",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 15,
+   "type": "VAEDecode",
+   "pos": [
+    1640,
+    60
+   ],
+   "size": [
+    220,
+    50
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 17
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 18
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      19
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 16,
+   "type": "SaveImage",
+   "pos": [
+    1640,
+    150
+   ],
+   "size": [
+    420,
+    560
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 19
+    }
+   ],
+   "outputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "links": [],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "Transformadas/HX_transformada"
+   ],
+   "title": "Resultado (salvo em Resultados\\Transformadas)"
+  },
+  {
+   "id": 17,
+   "type": "MarkdownNote",
+   "pos": [
+    40,
+    700
+   ],
+   "size": [
+    680,
+    420
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "title": "LEIA-ME",
+   "properties": {},
+   "widgets_values": [
+    "## Z-Image — TRANSFORMAR FOTO (img2img + ControlNet Canny)\n\n**Como usar**\n1. No nó **1) FOTO DE ENTRADA** clique em *choose file to upload* (ou escolha na lista) — a foto vai para `ComfyUI\\input`.\n2. Escreva o **PROMPT POSITIVO**: primeiro **descreva a pessoa** (idade, cabelo, barba, olhos, tom de pele) e depois a nova cena/roupa/iluminação. Descrever os traços ajuda muito a manter a semelhança.\n3. Ajuste **denoise** no nó 5: `0.45–0.55` = mantém o rosto (padrão 0.55) · `0.6–0.65` = muda mais luz/roupa, rosto começa a variar · `0.7+` = identidade se perde.\n4. **strength** do ControlNet (nó 3): `0.5–0.8` (padrão 0.7). Acima de ~0.9 aparecem manchas e pele artificial.\n5. **Resolução**: nó 2, megapixels `0.4` (~560×752, teste rápido) até `1.0` (~1024 px). Acima de 1.0 não recomendado com 8 GB.\n6. Clique em **Run**. Resultado em `C:\\LLM\\Imagem\\Resultados\\Transformadas`.\n\n**Semente**: nó 5 está em *randomize*. Para repetir um resultado, troque para *fixed*.\n\n**Limitação**: o ControlNet Fun Union usa bordas (Canny) — ele preserva **pose, contorno e composição**, não a identidade facial. A semelhança vem do img2img (denoise). Não há garantia de identidade.\n\n**Roupa/cores**: como parte da foto original é reaproveitada, mudar a cor da roupa é limitado com denoise baixo. Para trocar tudo (roupa, cenário), use o workflow de Inspiração.\n\n**Negativo**: o Z-Image Turbo trabalha com `cfg 1`, que ignora o negativo. Para usá-lo, suba cfg para 1.5–2.0 (fica ~2× mais lento)."
+   ],
+   "color": "#432",
+   "bgcolor": "#653"
+  }
+ ],
+ "links": [
+  [
+   1,
+   1,
+   0,
+   2,
+   0,
+   "IMAGE"
+  ],
+  [
+   2,
+   2,
+   0,
+   3,
+   0,
+   "IMAGE"
+  ],
+  [
+   3,
+   3,
+   0,
+   4,
+   0,
+   "IMAGE"
+  ],
+  [
+   4,
+   5,
+   0,
+   9,
+   0,
+   "MODEL"
+  ],
+  [
+   5,
+   8,
+   0,
+   9,
+   1,
+   "MODEL_PATCH"
+  ],
+  [
+   6,
+   7,
+   0,
+   9,
+   2,
+   "VAE"
+  ],
+  [
+   7,
+   3,
+   0,
+   9,
+   3,
+   "IMAGE"
+  ],
+  [
+   8,
+   9,
+   0,
+   10,
+   0,
+   "MODEL"
+  ],
+  [
+   9,
+   6,
+   0,
+   11,
+   0,
+   "CLIP"
+  ],
+  [
+   10,
+   6,
+   0,
+   12,
+   0,
+   "CLIP"
+  ],
+  [
+   11,
+   2,
+   0,
+   13,
+   0,
+   "IMAGE"
+  ],
+  [
+   12,
+   7,
+   0,
+   13,
+   1,
+   "VAE"
+  ],
+  [
+   13,
+   10,
+   0,
+   14,
+   0,
+   "MODEL"
+  ],
+  [
+   14,
+   11,
+   0,
+   14,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   15,
+   12,
+   0,
+   14,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   16,
+   13,
+   0,
+   14,
+   3,
+   "LATENT"
+  ],
+  [
+   17,
+   14,
+   0,
+   15,
+   0,
+   "LATENT"
+  ],
+  [
+   18,
+   7,
+   0,
+   15,
+   1,
+   "VAE"
+  ],
+  [
+   19,
+   15,
+   0,
+   16,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "Entrada",
+   "bounding": [
+    20,
+    0,
+    720,
+    680
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "Modelos (já instalados)",
+   "bounding": [
+    740,
+    0,
+    400,
+    500
+   ],
+   "color": "#8A8",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "Prompt",
+   "bounding": [
+    740,
+    480,
+    500,
+    460
+   ],
+   "color": "#b06634",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "Geração e saída",
+   "bounding": [
+    1140,
+    0,
+    940,
+    740
+   ],
+   "color": "#a1309b",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.75,
+   "offset": [
+    40,
+    40
+   ]
+  },
+  "frontendVersion": "1.55.17"
+ },
+ "version": 0.4
+}

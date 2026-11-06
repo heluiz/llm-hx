@@ -1,0 +1,16 @@
+FERRAMENTAS HX - ComfyUI / Z-Image (criado pelo Claude em 17/10/2026)
+
+Iniciar o ComfyUI:  Desktop\LLM_HX\2 - Imagem (ComfyUI)\1-ABRIR-COMFYUI.bat
+  (= ComfyUI_windows_portable\run_nvidia_gpu_HX.bat, salva em C:\LLM\Imagem\Resultados)
+  O run_nvidia_gpu.bat original continua intacto (salva em ComfyUI\output).
+
+Workflows (Desktop\LLM_HX\2 - Imagem (ComfyUI)\Workflows e barra lateral "Workflows" do ComfyUI):
+  Z-Image-Transformar-Foto.json   -> Resultados\Transformadas
+  Z-Image-Inspiracao-Imagem.json  -> Resultados\Inspiradas
+
+Arquivos desta pasta:
+  diagnostico.bat          GPU/VRAM, versoes, porta 8188, disco, RAM -> diagnostico.txt (somente leitura)
+  coletar_api.bat          baixa definicoes dos nos, fila e logs da API local -> api\
+  reiniciar_comfyui_HX.bat encerra SO o processo da porta 8188 e reabre com o lancador HX
+  testar_workflows_HX.bat  roda teste real via API (teste_hx.py) -> teste\resultado_*.json
+                           (se teste\fila.txt existir, roda os nomes listados nele)

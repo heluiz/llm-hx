@@ -1,0 +1,166 @@
+﻿=====================================================================
+  COMO USAR O GERADOR DE IMAGENS (ComfyUI + Z-Image)  -  guia HX
+=====================================================================
+
+Existem 3 workflows (receitas prontas). Escolha conforme o objetivo:
+
+  Z-Image-Transformar-Foto   -> usa SUA foto e muda roupa, luz, cenário,
+                                mantendo o rosto parecido.
+                                Ex.: foto 3x4 -> retrato profissional de terno.
+
+  Z-Image-Inspiracao-Imagem  -> usa uma foto só como "molde" de pose e
+                                enquadramento; cria uma imagem nova.
+                                Ex.: sua pose -> personagem cyberpunk.
+
+  Z-Image-Turbo-INT8         -> cria imagem só a partir de texto, sem foto.
+
+
+---------------------------------------------------------------------
+ PASSO 1 - ABRIR
+---------------------------------------------------------------------
+ 1. Feche o Voicebox ou rode "3 - Voz\2-LIBERAR-VRAM-VOZ" (a placa de
+    vídeo tem só 8 GB; não rode imagem, voz e texto ao mesmo tempo).
+ 2. Dê dois cliques em "1-ABRIR-COMFYUI".
+ 3. Abre uma janela preta (é o servidor - NÃO FECHE enquanto usa) e,
+    em alguns segundos, o navegador em http://127.0.0.1:8188
+    Se o navegador não abrir sozinho, digite esse endereço nele.
+
+
+---------------------------------------------------------------------
+ PASSO 2 - CARREGAR O WORKFLOW
+---------------------------------------------------------------------
+ Opção A (mais fácil): na barra da ESQUERDA do ComfyUI, clique no
+   ícone "Workflows" (ou aperte a tecla W) e clique no nome desejado.
+ Opção B: arraste o arquivo .json da pasta "Workflows" para dentro
+   da janela do ComfyUI.
+
+ Cada workflow tem uma nota marrom "LEIA-ME" na tela e os nós que você
+ pode mexer são numerados de 1) a 5).
+
+
+---------------------------------------------------------------------
+ PASSO 3 - ESCOLHER A FOTO  (Transformar e Inspiração)
+---------------------------------------------------------------------
+ No nó "1) FOTO DE ENTRADA":
+   - clique em "escolher arquivo para enviar" e selecione a foto
+     (pode estar em qualquer pasta; sugestão: C:\LLM\Imagem\Referencias)
+   - ou clique na seta da lista e escolha uma foto já enviada antes.
+ A foto aparece dentro do nó. Fotos de rosto de frente, bem
+ iluminadas e nítidas dão os melhores resultados.
+
+
+---------------------------------------------------------------------
+ PASSO 4 - ESCREVER O PROMPT (o que você quer)
+---------------------------------------------------------------------
+ No nó "4) PROMPT POSITIVO". Escreva em INGLÊS (funciona melhor).
+
+ REGRA DE OURO no "Transformar":
+   1º descreva a PESSOA  ->  2º descreva a CENA NOVA.
+   Descrever os traços (idade, cabelo, barba, olhos, pele) é o que
+   mais ajuda a manter a semelhança.
+
+ Exemplo (já vem pronto no workflow):
+   Professional corporate headshot of a man in his 40s with short dark
+   brown hair, receding hairline, full salt-and-pepper beard, brown
+   eyes, light tan skin, wearing a navy blue suit, white shirt and dark
+   tie, soft studio lighting, neutral grey background, photorealistic
+
+ Outras ideias (troque só a segunda parte):
+   ... wearing a black leather jacket, cinematic lighting, night city
+       street with bokeh lights, film still, 35mm
+   ... wearing a police tactical vest, outdoor daylight, shallow depth
+       of field, documentary photography
+   ... in a cyberpunk style, neon pink and cyan rim light, futuristic
+       city background, highly detailed
+
+ O "PROMPT NEGATIVO" (o que NÃO quer) só funciona se cfg > 1. Pode
+ ignorá-lo no uso normal.
+
+
+---------------------------------------------------------------------
+ PASSO 5 - AJUSTES (os 3 botões que importam)
+---------------------------------------------------------------------
+ Clique no número e digite, ou arraste para os lados.
+
+ a) denoise  (nó "5) GERAÇÃO")  = QUANTO a imagem muda
+      Transformar:  0.45-0.55  rosto bem parecido   (padrão 0.55)
+                    0.60-0.65  muda mais, rosto começa a variar
+                    0.70+      vira outra pessoa
+      Inspiração:   1.00       só pose/enquadramento, cores novas (padrão)
+                    0.80-0.90  herda também cores e luz da foto
+
+ b) strength (nó "3) INTENSIDADE DA REFERÊNCIA") = quanto segue o contorno
+      0.5 solto  |  0.7 equilibrado (padrão)  |  acima de 0.9 = manchas
+
+ c) megapixels (nó "2) Resolução") = tamanho/qualidade
+      0.4  rápido, ~560x750 (padrão, ~6-10 s por imagem)
+      0.7  bom equilíbrio
+      1.0  máximo recomendado para a placa de 8 GB
+
+ Semente (seed, nó 5): em "randomize" cada clique gera uma variação
+ diferente. Gostou de uma e quer refinar? Troque para "fixed" e mexa
+ só no prompt ou no denoise.
+
+
+---------------------------------------------------------------------
+ PASSO 6 - GERAR
+---------------------------------------------------------------------
+ Clique no botão azul "Executar" (em cima, no meio).
+ - A 1ª imagem demora mais (~20 s, carrega os modelos); as próximas
+   saem em ~6-10 s.
+ - O nó que está trabalhando fica com borda verde.
+ - O resultado aparece no nó "Resultado" à direita.
+ - Para gerar 4 variações de uma vez, troque o número "1" ao lado de
+   "Executar" por 4.
+
+
+---------------------------------------------------------------------
+ ONDE FICAM AS IMAGENS
+---------------------------------------------------------------------
+ Atalho "2-ABRIR-RESULTADOS", ou:
+   C:\LLM\Imagem\Resultados\Transformadas   (workflow Transformar)
+   C:\LLM\Imagem\Resultados\Inspiradas      (workflow Inspiração)
+   C:\LLM\Imagem\Resultados                 (Turbo, só texto)
+ Os arquivos são numerados (HX_transformada_00001_.png, 00002...).
+ Nada é apagado: cada geração cria um arquivo novo.
+
+ DICA: arrastar uma imagem gerada (.png) para dentro do ComfyUI
+ recarrega exatamente as configurações que a criaram.
+
+
+---------------------------------------------------------------------
+ WORKFLOW TURBO (só texto, sem foto)
+---------------------------------------------------------------------
+ Abra "Z-Image-Turbo-INT8". Há um único bloco grande: nele escreva o
+ texto (em inglês), ajuste largura/altura (1024x1024 padrão;
+ 768x1024 para retrato) e clique em "Executar".
+
+
+---------------------------------------------------------------------
+ RECEITA RÁPIDA - "quero um retrato profissional meu"
+---------------------------------------------------------------------
+ 1-ABRIR-COMFYUI -> Workflows -> Z-Image-Transformar-Foto ->
+ enviar sua foto no nó 1 -> deixar o prompt pronto -> Executar ->
+ não gostou? Executar de novo (outra semente) ou baixe denoise p/ 0.5.
+
+
+---------------------------------------------------------------------
+ PROBLEMAS COMUNS
+---------------------------------------------------------------------
+ Página não abre        -> a janela preta foi fechada; rode
+                           1-ABRIR-COMFYUI de novo.
+ Rosto ficou diferente  -> baixe o denoise (0.5) e descreva mais os
+                           traços no prompt.
+ Roupa não muda de cor  -> limitação do modo Transformar (ele aproveita
+                           parte da foto). Suba o denoise para 0.65 ou
+                           use o workflow Inspiração.
+ Manchas / pele de cera -> strength alto demais; volte para 0.7.
+ Erro de memória / muito lento -> feche Voicebox e os modelos de
+                           texto; reduza megapixels para 0.4.
+ Nó vermelho "modelo ausente" -> você abriu um workflow de
+                           "originais (nao usar)". Use os 3 da pasta
+                           Workflows.
+
+ Para encerrar: feche a aba do navegador e a janela preta.
+ Limitação honesta: a semelhança do rosto NÃO é garantida; ela vem da
+ foto + prompt, não de reconhecimento facial.

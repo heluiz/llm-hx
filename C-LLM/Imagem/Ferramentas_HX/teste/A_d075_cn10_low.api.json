@@ -1,0 +1,235 @@
+{
+ "prompt": {
+  "1": {
+   "class_type": "LoadImage",
+   "inputs": {
+    "image": "HELUIZ_FOTO_3X4.jpeg"
+   },
+   "_meta": {
+    "title": "1) FOTO DE ENTRADA (clique para trocar / upload)"
+   }
+  },
+  "2": {
+   "class_type": "ImageScaleToTotalPixels",
+   "inputs": {
+    "image": [
+     "1",
+     0
+    ],
+    "upscale_method": "lanczos",
+    "megapixels": 0.4,
+    "resolution_steps": 16
+   },
+   "_meta": {
+    "title": "2) Resolu\u00e7\u00e3o de trabalho (megapixels)"
+   }
+  },
+  "3": {
+   "class_type": "Canny",
+   "inputs": {
+    "image": [
+     "2",
+     0
+    ],
+    "low_threshold": 0.2,
+    "high_threshold": 0.5
+   },
+   "_meta": {
+    "title": "Bordas (Canny) para o ControlNet"
+   }
+  },
+  "4": {
+   "class_type": "PreviewImage",
+   "inputs": {
+    "images": [
+     "3",
+     0
+    ]
+   },
+   "_meta": {
+    "title": "Pr\u00e9via das bordas"
+   }
+  },
+  "5": {
+   "class_type": "UNETLoader",
+   "inputs": {
+    "unet_name": "z_image_turbo_int8_convrot.safetensors",
+    "weight_dtype": "default"
+   },
+   "_meta": {
+    "title": "Modelo Z-Image Turbo INT8"
+   }
+  },
+  "6": {
+   "class_type": "CLIPLoader",
+   "inputs": {
+    "clip_name": "qwen_3_4b_fp8_mixed.safetensors",
+    "type": "lumina2",
+    "device": "default"
+   },
+   "_meta": {
+    "title": "Codificador de texto Qwen3 4B FP8"
+   }
+  },
+  "7": {
+   "class_type": "VAELoader",
+   "inputs": {
+    "vae_name": "ae.safetensors"
+   },
+   "_meta": {
+    "title": "VAE"
+   }
+  },
+  "8": {
+   "class_type": "ModelPatchLoader",
+   "inputs": {
+    "name": "Z-Image-Turbo-Fun-Controlnet-Union.safetensors"
+   },
+   "_meta": {
+    "title": "ControlNet Fun Union (model patch)"
+   }
+  },
+  "9": {
+   "class_type": "QwenImageDiffsynthControlnet",
+   "inputs": {
+    "model": [
+     "5",
+     0
+    ],
+    "model_patch": [
+     "8",
+     0
+    ],
+    "vae": [
+     "7",
+     0
+    ],
+    "image": [
+     "3",
+     0
+    ],
+    "strength": 1.0,
+    "start_percent": 0.0,
+    "end_percent": 1.0
+   },
+   "_meta": {
+    "title": "3) INTENSIDADE DA REFER\u00caNCIA (strength)"
+   }
+  },
+  "10": {
+   "class_type": "ModelSamplingAuraFlow",
+   "inputs": {
+    "model": [
+     "9",
+     0
+    ],
+    "shift": 3.0,
+    "sampling": "flow"
+   },
+   "_meta": {
+    "title": "ModelSamplingAuraFlow"
+   }
+  },
+  "11": {
+   "class_type": "CLIPTextEncode",
+   "inputs": {
+    "text": "Professional corporate headshot of a man in his 40s with short dark brown hair, receding hairline, full salt-and-pepper beard, brown eyes, light tan skin, wearing a navy blue suit, white shirt and dark tie, soft studio lighting, neutral grey background, sharp focus, realistic skin texture, 85mm lens, photorealistic",
+    "clip": [
+     "6",
+     0
+    ]
+   },
+   "_meta": {
+    "title": "4) PROMPT POSITIVO"
+   }
+  },
+  "12": {
+   "class_type": "CLIPTextEncode",
+   "inputs": {
+    "text": "blurry, deformed face, distorted eyes, extra fingers, low quality, watermark, text, cartoon",
+    "clip": [
+     "6",
+     0
+    ]
+   },
+   "_meta": {
+    "title": "PROMPT NEGATIVO (s\u00f3 tem efeito com cfg > 1)"
+   }
+  },
+  "13": {
+   "class_type": "VAEEncode",
+   "inputs": {
+    "pixels": [
+     "2",
+     0
+    ],
+    "vae": [
+     "7",
+     0
+    ]
+   },
+   "_meta": {
+    "title": "Foto \u2192 latente"
+   }
+  },
+  "14": {
+   "class_type": "KSampler",
+   "inputs": {
+    "model": [
+     "10",
+     0
+    ],
+    "seed": 20261017,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler_name": "res_multistep",
+    "scheduler": "simple",
+    "positive": [
+     "11",
+     0
+    ],
+    "negative": [
+     "12",
+     0
+    ],
+    "latent_image": [
+     "13",
+     0
+    ],
+    "denoise": 0.75
+   },
+   "_meta": {
+    "title": "5) GERA\u00c7\u00c3O (semente, passos, denoise)"
+   }
+  },
+  "15": {
+   "class_type": "VAEDecode",
+   "inputs": {
+    "samples": [
+     "14",
+     0
+    ],
+    "vae": [
+     "7",
+     0
+    ]
+   },
+   "_meta": {
+    "title": "VAEDecode"
+   }
+  },
+  "16": {
+   "class_type": "SaveImage",
+   "inputs": {
+    "images": [
+     "15",
+     0
+    ],
+    "filename_prefix": "_testes_parametros/A_d075_cn10_low"
+   },
+   "_meta": {
+    "title": "Resultado (salvo em Resultados\\Transformadas)"
+   }
+  }
+ }
+}

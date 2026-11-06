@@ -1,0 +1,26 @@
+# Modelos e pesos
+*.gguf
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+models/
+# Fotos, resultados e voz
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.wav
+*.mp3
+*.flac
+Resultados/
+Referencias/
+referencias/
+output/
+# Execução
+logs/
+*.log
+api/
+desktop.ini
+backup_atalhos_*/

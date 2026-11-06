@@ -1,0 +1,23 @@
+LLM_HX - organizacao dos atalhos (17/10/2026)
+
+1 - Texto (LLMs)        modelos de linguagem locais (llama.cpp)
+   1-Qwen3.6-35B-Heretic / 2-Gemma4-12B-Heretic / 3-Qwen3.8-35B-APEX
+   OTIMIZAR              ajusta desempenho dos modelos (antigo 4-OTIMIZAR)
+   INSTALAR-ATUALIZAR    instala/atualiza llama.cpp e modelos (antigo 0-INSTALAR)
+
+2 - Imagem (ComfyUI)    >>> GUIA PASSO A PASSO: abra COMO-USAR.txt dentro desta pasta <<<
+   1-ABRIR-COMFYUI       abre o ComfyUI salvando em C:\LLM\Imagem\Resultados
+   2-ABRIR-RESULTADOS    pasta das imagens geradas
+   3-ABRIR-REFERENCIAS   pasta das fotos de entrada
+   Workflows\            Transformar-Foto, Inspiracao-Imagem, Turbo-INT8 (texto->imagem)
+   Workflows\originais   modelos de referencia oficiais (pedem modelos nao instalados)
+
+3 - Voz (Voicebox)
+   1-ABRIR-VOICEBOX      abre o Voicebox com os modelos de C:\LLM\Voz\models
+   2-LIBERAR-VRAM-VOZ    tira os modelos de voz da GPU (use antes do ComfyUI)
+   3-ABRIR-AUDIOS        pasta C:\LLM\Voz\output
+
+9 - Sistema (nao mexer) scripts PowerShell, logs e resultados de otimizacao
+   backup_atalhos_2026-10-17\  copia dos atalhos como eram antes
+
+Regra da GPU (8 GB): use um de cada vez - texto, imagem OU voz.
