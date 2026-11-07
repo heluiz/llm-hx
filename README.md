@@ -1,17 +1,28 @@
 # LLM_HX — IA local no Predator
 
-> **Repositório privado.** Guarda só os atalhos, scripts, workflows e guias da IA local. Ficam de fora os modelos, a instalação do ComfyUI, as fotos de referência e os resultados, as amostras de voz e os logs.
+> **Repositório privado.** Guarda só os atalhos, scripts, workflows e guias da IA local. Ficam de fora os modelos, a instalação do ComfyUI, a distro do agente, as fotos de referência e os resultados, as amostras de voz e os logs.
 
-Configuração da IA que roda no notebook Predator (RTX 4070 Laptop, 8 GB): modelos de texto pelo llama.cpp, geração de imagem pelo ComfyUI (Z-Image Turbo) e voz pelo Voicebox. Os três usam a mesma placa de vídeo, por isso só um roda de cada vez.
+Configuração da IA que roda no notebook Predator (RTX 4070 Laptop, 8 GB): modelos de texto pelo llama.cpp, geração de imagem pelo ComfyUI (Z-Image Turbo), voz pelo Voicebox e um agente de programação local (OpenCode ou Claude Code falando só com o llama.cpp). Todos usam a mesma placa de vídeo, por isso só um roda de cada vez.
 
 ## Estrutura
 
 | Pasta | Onde fica no PC | O que tem |
 |---|---|---|
-| `LLM_HX/` | Área de Trabalho\LLM_HX | Atalhos por área (Texto, Imagem, Voz), workflows do ComfyUI, `COMO-USAR.txt` e os scripts de sistema (`setup.ps1`, `run-model.ps1`, `tune.ps1`) |
+| `LLM_HX/` | Área de Trabalho\LLM_HX | Atalhos por área (Texto, Imagem, Voz, Agente), workflows do ComfyUI, os guias `COMO-USAR.txt` e os scripts de sistema (`setup.ps1`, `run-model.ps1`, `tune.ps1` e a pasta `agente\`) |
 | `C-LLM/Imagem/Ferramentas_HX/` | C:\LLM\Imagem\Ferramentas_HX | Diagnóstico, reinício e testes do ComfyUI e do Voicebox |
 | `C-LLM/tuned/` | C:\LLM\tuned | Parâmetros encontrados pelo `tune.ps1` para cada modelo |
 
+## Agente local
+
+Fica em `LLM_HX/4 - Agente (tarefas longas)`. Roda numa distro WSL separada (AgenteHX, Ubuntu 24.04), sem acesso ao disco C:, sem abrir programas do Windows e sem sudo. Tem dois modos:
+
+- **Chat** (`4-CONVERSAR-COM-O-AGENTE`): você digita os pedidos e acompanha cada passo.
+- **Sozinho** (`3-RODAR-AGENTE`): um loop de rodadas, sempre com contexto limpo, pega a próxima tarefa do `PLAN.md`, confere com o `verificar.sh` e faz commit. Aguenta horas ou dias.
+
+Os scripts do Windows e o `config.json` (pausa do pregão, modelo e agente padrão) ficam em `LLM_HX/9 - Sistema (nao mexer)/agente/`. A subpasta `wsl/` vai para `/opt/agente-hx` dentro da distro; os atalhos levam a versão nova sozinhos quando o kit muda. O guia completo é o `COMO-USAR.txt` da pasta do agente.
+
 ## Restaurar
 
-Copie cada pasta de volta para o lugar indicado na tabela. Os modelos e o ComfyUI precisam ser baixados de novo; o `LLM_HX/1 - Texto (LLMs)/INSTALAR-ATUALIZAR.bat` instala ou atualiza o llama.cpp e os modelos de texto.
+Copie cada pasta de volta para o lugar indicado na tabela. Os modelos e o ComfyUI precisam ser baixados de novo; o `LLM_HX/1 - Texto (LLMs)/INSTALAR-ATUALIZAR.bat` instala ou atualiza o llama.cpp e os modelos de texto. A distro do agente (C:\LLM\Agente) não fica aqui: o `0-INSTALAR-AGENTE.bat` cria uma nova.
+
+Os projetos do agente ficam dentro da distro (`\\wsl.localhost\AgenteHX\home\agente\projetos`) e não entram neste backup. Cada projeto já tem o próprio git, então dá para guardar um projeto importante num repositório separado.

@@ -3,3 +3,6 @@
 *.txt -text
 *.py -text
 *.json -text
+*.sh -text
+*.md -text
+gitignore -text

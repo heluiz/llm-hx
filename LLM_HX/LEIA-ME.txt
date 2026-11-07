@@ -1,7 +1,8 @@
-LLM_HX - organizacao dos atalhos (17/10/2026)
+LLM_HX - organizacao dos atalhos (atualizado em 06/11/2026)
 
 1 - Texto (LLMs)        modelos de linguagem locais (llama.cpp)
    1-Qwen3.6-35B-Heretic / 2-Gemma4-12B-Heretic / 3-Qwen3.8-35B-APEX
+   4-Qwen3-Coder-30B     especialista em codigo (baixe antes com INSTALAR-ATUALIZAR)
    OTIMIZAR              ajusta desempenho dos modelos (antigo 4-OTIMIZAR)
    INSTALAR-ATUALIZAR    instala/atualiza llama.cpp e modelos (antigo 0-INSTALAR)
 
@@ -17,7 +18,23 @@ LLM_HX - organizacao dos atalhos (17/10/2026)
    2-LIBERAR-VRAM-VOZ    tira os modelos de voz da GPU (use antes do ComfyUI)
    3-ABRIR-AUDIOS        pasta C:\LLM\Voz\output
 
-9 - Sistema (nao mexer) scripts PowerShell, logs e resultados de otimizacao
-   backup_atalhos_2026-10-17\  copia dos atalhos como eram antes
+4 - Agente (tarefas longas)  >>> GUIA PASSO A PASSO: abra COMO-USAR.txt dentro desta pasta <<<
+   agente de programacao local (sem API, sem limite): em chat, ou sozinho por horas ou dias
+   0-INSTALAR-AGENTE     uma vez: cria a distro WSL isolada AgenteHX (OpenCode + Claude Code)
+   1-LIGAR-SERVIDOR      liga o modelo do agente; desliga sozinho na pausa do pregao
+   2-NOVO-PROJETO        cria um projeto (SPEC.md + PLAN.md) - tem um exemplo pronto
+   3-RODAR-AGENTE        o agente trabalha SOZINHO no projeto ate terminar as tarefas
+   4-CONVERSAR-COM-O-AGENTE  modo CHAT: voce digita os pedidos e acompanha cada passo
+   5-VER-ANDAMENTO       tarefas feitas, pendentes e bloqueadas
+   6-PAUSAR-OU-CONTINUAR desliga/religa o modelo na hora (libera GPU e RAM)
+   7-PARAR-PROJETO       para no fim da rodada atual e gera o RELATORIO.md
+   8-ABRIR-PROJETOS      abre a pasta dos projetos no Explorer
+   9-DIAGNOSTICO         confere tudo e grava um relatorio para suporte
+   ATUALIZAR-SCRIPTS     reenvia os scripts para a distro (os atalhos ja fazem isso sozinhos)
 
-Regra da GPU (8 GB): use um de cada vez - texto, imagem OU voz.
+9 - Sistema (nao mexer) scripts PowerShell, logs e resultados de otimizacao
+   agente\               scripts e config.json do agente (horario do pregao, modelo padrao)
+   backup_atalhos_2026-10-17\        copia dos atalhos como eram antes
+   backup_antes_agente_2026-11-06\   run-model/setup/tune/LEIA-ME como eram antes do agente
+
+Regra da GPU (8 GB): use um de cada vez - texto, imagem, voz OU agente.

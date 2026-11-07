@@ -1,0 +1,255 @@
+﻿=====================================================================
+  AGENTE LOCAL  -  guia HX
+=====================================================================
+
+O que é: um "Claude Code caseiro" que roda inteiro no seu Predator,
+com os seus modelos. Não usa API de ninguém e não tem limite de uso:
+o custo é a energia e o tempo do PC.
+
+Dois jeitos de usar:
+  CONVERSAR (atalho 4)  modo chat, igual ao Claude Code: você digita
+                        os pedidos e acompanha cada passo. Bom para
+                        tarefas curtas, dúvidas, ajustes e para montar
+                        o plano de um projeto grande.
+  RODAR (atalho 3)      modo sozinho: você entrega o projeto dividido
+                        em tarefas e ele trabalha rodada após rodada,
+                        por horas ou dias, até terminar.
+
+As peças:
+  SERVIDOR  -> o seu llama.cpp com um dos seus modelos (1-LIGAR-SERVIDOR)
+  AGENTE    -> o programa que lê arquivos, edita e roda comandos:
+               OpenCode (padrão) ou Claude Code, os dois falando só com
+               o seu modelo local
+  LOOP      -> só no modo sozinho: chama o agente de novo, com a memória
+               limpa, a cada rodada: pega a próxima tarefa do PLAN.md,
+               confere com o verificar.sh e salva no git. É isso que
+               aguenta dias.
+
+O agente trabalha numa distro WSL separada (AgenteHX): não enxerga o
+disco C:, não abre programas do Windows e não tem sudo. Ele ainda tem
+rede (internet e serviços locais); no modo sozinho as ferramentas de
+navegação ficam desligadas e no chat ele pede antes de abrir um site.
+
+
+---------------------------------------------------------------------
+ PASSO 0 - INSTALAR (uma vez, 10 a 20 minutos)
+---------------------------------------------------------------------
+ 1. Dê dois cliques em "0-INSTALAR-AGENTE".
+ 2. Ele liga a rede espelhada do WSL (pede um Enter: isso reinicia o
+    WSL e fecha distros abertas, como a do laboratório - nada é
+    apagado), baixa o Ubuntu 24.04 (~340 MB, conferido por SHA256),
+    cria a distro AgenteHX e instala git, Python, pytest, OpenCode e
+    Claude Code em versões fixas (nada se atualiza sozinho).
+ 3. No fim aparece uma conferência com "OK" em cada item.
+    Se aparecer FALHA, rode "9-DIAGNOSTICO" e me mande o arquivo
+    9 - Sistema (nao mexer)\agente\logs\diagnostico.txt
+
+ Modelo especialista em código: rode "1 - Texto (LLMs)\INSTALAR-
+ ATUALIZAR" (fora do pregão). Ele baixa o Qwen3-Coder-30B (18,6 GB)
+ e também atualiza o llama.cpp, se houver versão nova. Depois, se
+ quiser, "OTIMIZAR" ajusta a velocidade de cada modelo.
+
+ Quando eu mandar uma atualização do kit, não precisa fazer nada: o
+ próximo atalho que você abrir avisa "scripts desatualizados" e leva
+ os scripts novos para dentro da distro sozinho (leva segundos).
+
+
+---------------------------------------------------------------------
+ PASSO 1 - LIGAR O SERVIDOR (vale para os dois modos)
+---------------------------------------------------------------------
+ 1. Feche qualquer modelo de "1 - Texto (LLMs)" que estiver aberto
+    (a placa só aguenta um).
+ 2. Dê dois cliques em "1-LIGAR-SERVIDOR" e escolha o modelo pelo
+    número (Enter = o marcado com *).
+ 3. Deixe essa janela aberta (pode minimizar). Ela:
+    - desliga o modelo sozinha na pausa do pregão e religa depois;
+    - impede o Windows de suspender enquanto estiver aberta;
+    - roda o modelo com prioridade baixa, para o NinjaTrader vir antes.
+ 4. Fechar a janela desliga o modelo e libera a placa de vídeo.
+
+ Qual modelo usar:
+   qwen3-coder-30b-a3b     especialista em código - o mais indicado
+   qwen36-35b-a3b-heretic  o melhor geral dos seus - bom para começar
+   gemma4-12b-heretic      o mais rápido, mas se perde mais em tarefas longas
+   qwen38-35b-a3b-apex     o autor avisa que pode se repetir em respostas longas
+
+ O agente usa contexto de 64K tokens. Os atalhos de "1 - Texto
+ (LLMs)" continuam com 32K (era isso o "excede o contexto
+ disponível" que apareceu no log do Qwen3.8 em 03/11: uma conversa
+ de 37.972 tokens).
+
+
+---------------------------------------------------------------------
+ MODO CHAT - CONVERSAR COM O AGENTE (atalho 4)
+---------------------------------------------------------------------
+ 1. Com o 1-LIGAR-SERVIDOR aberto, dê dois cliques em
+    "4-CONVERSAR-COM-O-AGENTE".
+ 2. Escolha onde ele vai trabalhar:
+      um projeto seu   ele lê e altera os arquivos daquele projeto
+      rascunho         pasta livre, criada na hora: testes, dúvidas e
+                       coisas rápidas
+ 3. Escolha o agente: 1) OpenCode (padrão) ou 2) Claude Code.
+ 4. Abre a tela do chat. Digite o pedido e aperte Enter. Exemplos:
+      crie um script Python que lê um CSV de operações e soma o
+      resultado por dia, com teste
+      leia o SPEC.md e divida o trabalho em tarefas pequenas no PLAN.md
+      rode os testes e conserte o que falhar
+    Ele mostra cada arquivo que lê ou altera e cada comando que roda.
+ 5. Teclas:
+      Esc      interrompe a resposta (para corrigir o rumo)
+      Ctrl+D   sai da conversa (no Claude Code também dá para digitar
+               /exit)
+ 6. Ao sair, o que mudou fica salvo no histórico do projeto (git).
+    Não gostou? Abra de novo e peça: "desfaça as mudanças da última
+    conversa".
+
+ OpenCode ou Claude Code no chat:
+   OpenCode      roda os comandos sem perguntar (está na distro
+                 isolada); pergunta antes de apagar pasta (rm -r), de
+                 git push/reset e de abrir site.
+   Claude Code   a mesma tela que você já conhece. Altera arquivos sem
+                 perguntar, mas pede confirmação antes de cada comando
+                 (1 = sim, 2 = sim e não perguntar mais esse comando).
+
+ Bom saber:
+   - Não dá para conversar num projeto em que o 3-RODAR-AGENTE está
+     trabalhando (os dois mexeriam nos mesmos arquivos), nem rodar o 3
+     num projeto com conversa aberta. Use outro projeto ou o rascunho.
+   - O modelo atende um pedido por vez: com o 3 rodando em outro
+     projeto, os dois ficam mais lentos.
+   - A conversa vai enchendo o contexto (64K). Para assunto novo,
+     comece outra: no OpenCode Ctrl+X e depois N; no Claude Code
+     /clear. Ou saia e abra o 4 de novo.
+   - Projeto grande, que leva dias: use o chat para escrever o SPEC.md
+     e o PLAN.md junto com ele, saia e rode o 3 (modo sozinho).
+
+
+---------------------------------------------------------------------
+ MODO SOZINHO - PASSO 2: CRIAR O PROJETO
+---------------------------------------------------------------------
+ 1. "2-NOVO-PROJETO" -> digite um nome (ex.: meu-app).
+    Na primeira vez, responda "s" para criar o EXEMPLO (uma
+    calculadora de risco/retorno em Python). Serve para testar a
+    montagem inteira antes de um projeto de verdade.
+ 2. A pasta do projeto abre no Explorer. Num projeto seu, edite (à mão
+    ou pedindo no 4-CONVERSAR):
+    SPEC.md       o que construir. No modo sozinho o agente não pode
+                  te perguntar nada, então tudo tem que estar escrito
+                  aqui, com exemplos de entrada e saída.
+    PLAN.md       a lista de tarefas, uma por linha: "- [ ] T01: ..."
+    AGENTS.md     regras (linguagem, pastas, estilo)
+    verificar.sh  como conferir se está certo (padrão: testes Python
+                  com pytest). Tem que terminar sem erro.
+
+ Como escrever um bom PLAN.md:
+   - Tarefas pequenas: um arquivo ou uma função por vez, com teste.
+   - Diga o nome do arquivo e o que conta como pronto.
+   - Na ordem certa: o que depende de algo vem depois.
+   - 10 tarefas pequenas funcionam melhor que 3 grandes.
+
+
+---------------------------------------------------------------------
+ MODO SOZINHO - PASSO 3: RODAR O AGENTE
+---------------------------------------------------------------------
+ 1. "3-RODAR-AGENTE" -> escolha o projeto e o agente:
+      1) OpenCode    (recomendado: prompt menor, sobra mais contexto)
+      2) Claude Code (o programa da Anthropic, falando só com o seu
+                      modelo local)
+ 2. Deixe a janela aberta (pode minimizar). A cada rodada aparece:
+      rodada 7 | tarefa: T03 ... | tentativa 2/4
+        OK em 0h 12min: tarefa concluida e verificada (commit feito)
+ 3. Em cada rodada o agente faz UMA tarefa, roda o verificar.sh e
+    anota no PROGRESS.md. O loop só marca [x] se a verificação passar.
+    Se falhar 4 vezes, a tarefa vira [!] (bloqueada) e ele segue para
+    a próxima; a tentativa ruim fica guardada no git stash.
+ 4. O loop desfaz qualquer mudança do agente em SPEC.md, PLAN.md,
+    AGENTS.md, CLAUDE.md e verificar.sh (para ele não "passar" na
+    marra) e faz os commits ele mesmo.
+ 5. Ele termina sozinho quando não sobra tarefa "- [ ]".
+
+
+---------------------------------------------------------------------
+ PASSO 4 - ACOMPANHAR, PAUSAR, PARAR
+---------------------------------------------------------------------
+ 5-VER-ANDAMENTO         quantas feitas/pendentes/bloqueadas, as últimas
+                         linhas do log e se o projeto está RODANDO ou
+                         em CONVERSA.
+ 6-PAUSAR-OU-CONTINUAR   desliga o modelo na hora (para usar o PC,
+                         operar fora do horário etc.). O agente espera
+                         parado. Rode de novo para continuar.
+ 7-PARAR-PROJETO         para no fim da rodada atual e gera o
+                         RELATORIO.md. Rodando o 3 de novo, continua
+                         de onde parou.
+ Fechar a janela do 3    interrompe na hora. O que a rodada já fez
+                         fica na pasta e a próxima continua dali.
+
+
+---------------------------------------------------------------------
+ PASSO 5 - QUANDO TERMINAR
+---------------------------------------------------------------------
+ 1. "8-ABRIR-PROJETOS" -> pasta do projeto -> RELATORIO.md:
+    tarefas concluídas, bloqueadas (com o motivo) e o histórico.
+ 2. PROGRESS.md tem o diário de cada rodada.
+ 3. Revise o código antes de usar. O modelo local erra mais que o
+    Claude da nuvem; o verificar.sh só pega o que os testes cobrem.
+    O 4-CONVERSAR ajuda: "revise o código e me diga o que está frágil".
+ 4. Para refazer uma tarefa bloqueada: troque "- [!]" por "- [ ]" no
+    PLAN.md, apague o "(BLOQUEADA: ...)" e rode o 3 de novo.
+
+
+---------------------------------------------------------------------
+ AJUSTES  (9 - Sistema (nao mexer)\agente\config.json)
+---------------------------------------------------------------------
+ Abra no Bloco de Notas. Mantenha as aspas e as vírgulas. Vale na
+ próxima vez que abrir o 1, o 3 ou o 4.
+   pausaPregao           "dias" ("seg,ter,qua,qui,sex"), "inicio" e
+                         "fim". Padrão: 09:00 às 13:30. "ativa": false
+                         desliga a pausa.
+   pausarSeNinjaTraderAberto   true = desliga o modelo sempre que o
+                         NinjaTrader estiver aberto.
+   modeloPadrao          o modelo que vem marcado no 1-LIGAR-SERVIDOR.
+   agentePadrao          "opencode" ou "claude" (vem marcado no 3 e no 4).
+   contexto              65536 (64K). Abaixo de 32768 não funciona.
+   tentativasPorTarefa   4. Mais tentativas = mais chances e mais tempo.
+   minutosPorRodada      60. Tempo máximo de cada rodada.
+   rodadasMaximas        400. Freio geral de uma corrida.
+   raciocinio            "padrao" ou "desligado" (desligado = mais
+                         rápido, pensa menos antes de agir).
+
+
+---------------------------------------------------------------------
+ PROBLEMAS COMUNS
+---------------------------------------------------------------------
+ Sintoma                                 O que fazer
+ --------------------------------------  ------------------------------
+ "aguardando o servidor do modelo" ou    Abra o 1-LIGAR-SERVIDOR. Se já
+ "O servidor do modelo ainda nao         está aberto, veja se está em
+  respondeu"                             pausa (pregão ou 6-PAUSAR) ou
+                                         ainda carregando o modelo.
+ "scripts do agente ... desatualizados"  Normal depois de uma atualização
+                                         do kit: o atalho atualiza sozinho
+                                         e segue.
+ "ja tem um agente rodando"              Já existe uma janela do 3 para
+                                         esse projeto. Feche uma.
+ "o agente esta trabalhando sozinho      O 3 está rodando nesse projeto.
+  neste projeto agora" (no 4)            Converse no rascunho ou em outro
+                                         projeto, ou pare com 7-PARAR.
+ "tem uma conversa aberta neste          Feche a janela do 4 desse
+  projeto" (no 3)                        projeto e rode o 3 de novo.
+ Toda tarefa vira [!] bloqueada          Tarefas grandes demais ou SPEC
+                                         vaga. Quebre em tarefas menores,
+                                         dê exemplos na SPEC e tente o
+                                         qwen3-coder.
+ "verificacao passou, mas o agente       O modelo fez o trabalho e não
+  nao confirmou"                         avisou. Normal de vez em quando;
+                                         se for sempre, troque o modelo.
+ Agente lento                            Normal: cada rodada leva de 5 a
+                                         30 min. No chat, a 1ª resposta
+                                         demora mais (ele lê o projeto).
+ Notebook dormiu                         A janela do 1 impede suspender,
+                                         mas fechar a tampa pode dormir.
+                                         Na tomada, deixe a tampa aberta
+                                         ou configure "ao fechar a
+                                         tampa: nada fazer".
+ Qualquer outra coisa                    Rode 9-DIAGNOSTICO e me mande o
+                                         logs\diagnostico.txt
