@@ -125,6 +125,53 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
 
 
 ---------------------------------------------------------------------
+ PLUGINS E MCPs (instalados sozinhos)
+---------------------------------------------------------------------
+ Na primeira vez que você abrir um atalho depois desta atualização,
+ ele instala dentro da distro (uma vez só, alguns minutos):
+   REA 6.5.0       engenharia reversa ("Reverse Engineer Anything"),
+                   o mesmo que você usa no Codex: o comando rea, o
+                   servidor MCP e a skill reverse-engineer-anything
+   Ghidra e JADX   copiados do seu C:\tools, com o Java 21. O REA usa
+                   para programas nativos e apps Android.
+   Ponytail        as skills que você usa no Codex: ponytail,
+                   ponytail-review, ponytail-audit e ponytail-debt
+   Pyright         o agente vê os erros de Python logo depois de
+                   editar (no Claude Code, pelo plugin pyright-lsp)
+   Python          bibliotecas para criar Word, Excel e PDF
+
+ Onde funciona:
+   Modo chat (4)     tudo, inclusive o MCP do REA.
+   Modo sozinho (3)  skills, Pyright e o comando rea no terminal. O
+                     MCP do REA fica de fora para sobrar contexto.
+
+ Como usar no chat:
+   use o REA para analisar o app que está na pasta alvo/
+   ponytail review nas mudanças de hoje
+ O agente não enxerga o seu C:. Para analisar um programa, copie-o
+ antes para a pasta do projeto (8-ABRIR-PROJETOS). Use só em
+ programas que você tem direito de analisar.
+
+ O que NÃO veio, e por quê:
+   Conectores do claude.ai (Gmail, Drive, Agenda, Dropbox, Trello...)
+     São da sua conta na nuvem. Ligar seu e-mail e seus arquivos a um
+     agente local que roda comandos sozinho seria arriscado. Se quiser
+     algum específico, me peça que eu configuro só para o chat.
+   Plugins do ChatGPT/Codex (navegador, computer use, documentos,
+     imagens): só funcionam dentro do app da OpenAI.
+   Skills de documentos da Anthropic (docx, xlsx, pptx, pdf): a licença
+     proíbe usar fora dos serviços da Anthropic. No lugar delas ficaram
+     as bibliotecas Python acima.
+
+ Instalar mais:
+   Claude Code   no chat, digite /plugin (o marketplace oficial da
+                 Anthropic já está adicionado).
+   OpenCode      os MCPs ficam em ~/.config/opencode/opencode.json,
+                 dentro da distro (peça que eu configuro).
+   Cada plugin ou MCP gasta contexto do modelo local: poucos e bons.
+
+
+---------------------------------------------------------------------
  MODO SOZINHO - PASSO 2: CRIAR O PROJETO
 ---------------------------------------------------------------------
  1. "2-NOVO-PROJETO" -> digite um nome (ex.: meu-app).
@@ -215,6 +262,9 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
    rodadasMaximas        400. Freio geral de uma corrida.
    raciocinio            "padrao" ou "desligado" (desligado = mais
                          rápido, pensa menos antes de agir).
+   extras                false = não instala os plugins e MCPs.
+   versaoRea, versaoNode versões do REA (padrão 6.5.0) e do Node.js
+                         (24). Mudou? Rode o ATUALIZAR-SCRIPTS.
 
 
 ---------------------------------------------------------------------
@@ -229,6 +279,9 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
  "scripts do agente ... desatualizados"  Normal depois de uma atualização
                                          do kit: o atalho atualiza sozinho
                                          e segue.
+ "Plugins e MCPs: faltou alguma parte"   Sem internet na hora? Rode o
+                                         ATUALIZAR-SCRIPTS de novo. O
+                                         agente funciona sem eles.
  "ja tem um agente rodando"              Já existe uma janela do 3 para
                                          esse projeto. Feche uma.
  "o agente esta trabalhando sozinho      O 3 está rodando nesse projeto.

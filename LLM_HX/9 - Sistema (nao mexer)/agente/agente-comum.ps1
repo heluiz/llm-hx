@@ -57,6 +57,27 @@ function Get-AgKitHash {
     $digest = $hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($sb.ToString()))
     return (($digest | ForEach-Object { $_.ToString('x2') }) -join '')
 }
+# Valor do config.json com padrao (chaves novas podem nao existir no config.json de quem ja instalou).
+function Get-AgCfgValue($CfgObj, [string]$Name, [string]$Default) {
+    $cfgValue = $CfgObj.$Name
+    if (($null -eq $cfgValue) -or ("$cfgValue" -eq '')) { return $Default }
+    return "$cfgValue"
+}
+# Carimbo dos extras (plugins/MCPs): arquivos de wsl\extras + versoes pedidas. Mudou = reinstala.
+function Get-AgExtrasStamp($CfgObj) {
+    $extrasDir = Join-Path (Join-Path $AgKit 'wsl') 'extras'
+    $sb = New-Object System.Text.StringBuilder
+    [void]$sb.Append(("node={0} rea={1}`n" -f (Get-AgCfgValue $CfgObj 'versaoNode' '24'), (Get-AgCfgValue $CfgObj 'versaoRea' '6.5.0')))
+    if (Test-Path -LiteralPath $extrasDir) {
+        Get-ChildItem -LiteralPath $extrasDir -Recurse -File | Sort-Object -Property FullName | ForEach-Object {
+            $relPath = $_.FullName.Substring($extrasDir.Length).TrimStart('\') -replace '\\', '/'
+            [void]$sb.Append("$relPath $((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)`n")
+        }
+    }
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    $digest = $hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($sb.ToString()))
+    return (($digest | ForEach-Object { $_.ToString('x2') }) -join '')
+}
 function Test-AgScriptsAtualizados([string]$DistroName) {
     $stamp = Invoke-Wsl @('-d', $DistroName, '--cd', '~', '-e', 'cat', "$AgWslKit/.versao-kit")
     if ($stamp.Code -ne 0) { return $false }

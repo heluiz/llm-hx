@@ -142,6 +142,81 @@ try {
     [void](Invoke-Wsl @('-d', $distro, '-u', 'root', '--cd', '~', '-e', 'rm', '-rf', '/opt/agente-hx-novo'))
     if ($instExit -ne 0) { throw "A instalacao dentro da distro falhou (codigo $instExit). Veja as mensagens acima e rode de novo." }
 
+    # ---------- 5b. plugins, MCPs e ferramentas extras: REA (+ Ghidra e JADX do C:\tools), Ponytail, Pyright
+    # Falha aqui nao derruba nada: o agente funciona sem os extras, e o ATUALIZAR-SCRIPTS tenta de novo.
+    if ("$($cfg.extras)" -eq 'False') {
+        Write-Host ''
+        Write-Host 'Plugins e MCPs: desligados no config.json ("extras": false).'
+    } else {
+        $extrasStamp = Get-AgExtrasStamp $cfg
+        $stampNow = Invoke-Wsl @('-d', $distro, '--cd', '~', '-e', 'cat', '/opt/agente-hx-extras/.versao')
+        $extrasCurrent = ($stampNow.Code -eq 0) -and ("$($stampNow.Text)".Trim() -eq $extrasStamp)
+        if (-not ($Auto -and $extrasCurrent)) {
+            Say 'Plugins e MCPs do agente: REA (+ Ghidra e JADX do seu C:\tools), Ponytail e Pyright...'
+            if (-not $extrasCurrent) { Write-Host '   Na primeira vez leva alguns minutos (baixa o Node.js, o REA e o Java).' -ForegroundColor Yellow }
+            $prepX = Invoke-Wsl @('-d', $distro, '-u', 'root', '--cd', '~', '-e', 'sh', '-c', 'rm -rf /opt/agente-hx-staging && mkdir -p /opt/agente-hx-staging && chmod 777 /opt/agente-hx-staging')
+            $toolsDir = 'C:\tools'
+            $ghidraSrc = $null
+            $jadxSrc = $null
+            if (Test-Path -LiteralPath $toolsDir) {
+                $ghidraSrc = Get-ChildItem -LiteralPath $toolsDir -Directory -Filter 'ghidra_*_PUBLIC' -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
+                $jadxSrc = Get-ChildItem -LiteralPath $toolsDir -File -Filter 'jadx*.jar' -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
+            }
+            $needGhidra = $false
+            $needJadx = $false
+            if ($ghidraSrc) { $needGhidra = ((Invoke-Wsl @('-d', $distro, '--cd', '~', '-e', 'test', '-d', "/opt/agente-hx-extras/ghidra/$($ghidraSrc.Name)")).Code -ne 0) }
+            if ($jadxSrc) { $needJadx = ((Invoke-Wsl @('-d', $distro, '--cd', '~', '-e', 'test', '-f', "/opt/agente-hx-extras/jadx/$($jadxSrc.Name)")).Code -ne 0) }
+            if (($prepX.Code -eq 0) -and ($needGhidra -or $needJadx)) {
+                $keepAlive2 = Start-Process -FilePath 'wsl.exe' -ArgumentList @('-d', $distro, '-u', 'root', '--cd', '~', '-e', 'sleep', '1800') -WindowStyle Hidden -PassThru
+                Start-Sleep -Seconds 2
+                $stageUnc = $null
+                foreach ($prefix in @('\\wsl.localhost\', '\\wsl$\')) {
+                    $candidate = $prefix + $distro + '\opt\agente-hx-staging'
+                    if (Test-Path -LiteralPath $candidate) { $stageUnc = $candidate; break }
+                }
+                if ($stageUnc) {
+                    if ($needJadx) {
+                        Copy-Item -LiteralPath $jadxSrc.FullName -Destination $stageUnc -Force
+                        Write-Host "   JADX: $($jadxSrc.Name)"
+                    }
+                    if ($needGhidra) {
+                        Write-Host "   Ghidra: empacotando $($ghidraSrc.FullName) (~900 MB, alguns minutos)..."
+                        New-Item -ItemType Directory -Force -Path $downloadDir | Out-Null
+                        $tarLocal = Join-Path $downloadDir ($ghidraSrc.Name + '.tar')
+                        $tarExit = 1
+                        $ErrorActionPreference = 'Continue'
+                        try { & tar.exe -cf $tarLocal -C $ghidraSrc.Parent.FullName $ghidraSrc.Name; $tarExit = $LASTEXITCODE } catch { $tarExit = 1 }
+                        $ErrorActionPreference = 'Stop'
+                        if (($tarExit -eq 0) -and (Test-Path -LiteralPath $tarLocal)) {
+                            Copy-Item -LiteralPath $tarLocal -Destination (Join-Path $stageUnc 'ghidra.tar') -Force
+                        } else {
+                            Write-Host '   nao consegui empacotar o Ghidra; sigo sem ele.' -ForegroundColor Yellow
+                        }
+                        Remove-Item -LiteralPath $tarLocal -Force -ErrorAction SilentlyContinue
+                    }
+                } else {
+                    Write-Host '   nao abri a pasta de passagem da distro; sigo sem Ghidra e JADX.' -ForegroundColor Yellow
+                }
+                try { Stop-Process -Id $keepAlive2.Id -Force -ErrorAction SilentlyContinue } catch { }
+            }
+            $extrasArgs = @('-d', $distro, '-u', 'root', '--cd', '~', '-e', 'bash', "$AgWslKit/extras/instalar-extras.sh",
+                            '--usuario', $AgWslUser,
+                            '--node', (Get-AgCfgValue $cfg 'versaoNode' '24'),
+                            '--rea', (Get-AgCfgValue $cfg 'versaoRea' '6.5.0'),
+                            '--carimbo', $extrasStamp)
+            $ErrorActionPreference = 'Continue'
+            & wsl.exe @extrasArgs
+            $extrasExit = $LASTEXITCODE
+            $ErrorActionPreference = 'Stop'
+            [void](Invoke-Wsl @('-d', $distro, '-u', 'root', '--cd', '~', '-e', 'rm', '-rf', '/opt/agente-hx-staging'))
+            if ($extrasExit -eq 0) {
+                Write-Host 'Plugins e MCPs prontos.' -ForegroundColor Green
+            } else {
+                Write-Host 'Plugins e MCPs: faltou alguma parte (veja acima). O agente funciona normal; para tentar de novo, rode o ATUALIZAR-SCRIPTS.' -ForegroundColor Yellow
+            }
+        }
+    }
+
     if ($Auto) {
         Write-Host 'Scripts atualizados.' -ForegroundColor Green
         return

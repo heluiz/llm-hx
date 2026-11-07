@@ -30,7 +30,8 @@ LLM_HX - organizacao dos atalhos (atualizado em 06/11/2026)
    7-PARAR-PROJETO       para no fim da rodada atual e gera o RELATORIO.md
    8-ABRIR-PROJETOS      abre a pasta dos projetos no Explorer
    9-DIAGNOSTICO         confere tudo e grava um relatorio para suporte
-   ATUALIZAR-SCRIPTS     reenvia os scripts para a distro (os atalhos ja fazem isso sozinhos)
+   ATUALIZAR-SCRIPTS     reenvia os scripts e refaz os plugins/MCPs (os atalhos ja fazem isso sozinhos)
+   plugins e MCPs        REA (+ Ghidra e JADX do C:\tools), Ponytail e Pyright, instalados sozinhos
 
 9 - Sistema (nao mexer) scripts PowerShell, logs e resultados de otimizacao
    agente\               scripts e config.json do agente (horario do pregao, modelo padrao)
