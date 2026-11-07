@@ -24,3 +24,5 @@ logs/
 api/
 desktop.ini
 backup_atalhos_*/
+backup_antes_*/
+PAUSADO.flag

@@ -1,0 +1,6 @@
+.agente/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+node_modules/

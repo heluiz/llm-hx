@@ -1,5 +1,5 @@
 # LLM-HX setup - instala llama.cpp (CUDA) e baixa os modelos Abliterated
-# Destino: C:\LLM (fora do OneDrive/Desktop para nao sincronizar ~45 GB)
+# Destino: C:\LLM (fora do OneDrive/Desktop para nao sincronizar ~65 GB)
 # Pode rodar de novo a qualquer momento: atualiza o llama.cpp e retoma downloads interrompidos.
 # Compativel com Windows PowerShell 5.1. Mantenha este arquivo so com ASCII (5.1 le .ps1 sem BOM como ANSI).
 # Obs.: variaveis do PowerShell NAO diferenciam maiusculas/minusculas - use nomes distintos.
@@ -105,7 +105,10 @@ $plan = @(
     @{ Repo = 'culturerevolt/gemma-4-12b-heretic-abliterated-GGUF'; Dir = 'gemma4-12b-heretic';
        Want = @('IQ4_XS\.gguf$', 'mmproj.*\.gguf$') },
     @{ Repo = 'IsValorum/Qwen3.8-35B-A3B-Distill-MTP-APEX-I-MiniPlus-V2.1-Abliterated-GGUF'; Dir = 'qwen38-35b-a3b-apex';
-       Want = @('Abliterated\.gguf$', 'mmproj.*\.gguf$') }
+       Want = @('Abliterated\.gguf$', 'mmproj.*\.gguf$') },
+    # Especialista em codigo (modelo original da Qwen, sem alteracao). Usado pelo agente de tarefas longas.
+    @{ Repo = 'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF'; Dir = 'qwen3-coder-30b-a3b';
+       Want = @('Instruct-Q4_K_M\.gguf$') }
 )
 
 $problems = 0
@@ -138,6 +141,6 @@ try { & $ServerExe --list-devices } catch { Write-Warning "Nao consegui executar
 if ($problems -gt 0) {
     Say "Terminou com $problems pendencia(s). Rode 0-INSTALAR.bat de novo: ele retoma de onde parou." 'Yellow'
 } else {
-    Say 'Tudo pronto. Use 1-, 2- ou 3- desta pasta para iniciar um modelo (um por vez).' 'Green'
+    Say 'Tudo pronto. Use os atalhos 1- a 4- de "1 - Texto (LLMs)" para iniciar um modelo (um por vez).' 'Green'
     Write-Host 'O chat abre sozinho no navegador em http://127.0.0.1:8080 quando o modelo terminar de carregar.'
 }

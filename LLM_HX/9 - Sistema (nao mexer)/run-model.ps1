@@ -4,7 +4,7 @@
 # Obs.: variaveis do PowerShell NAO diferenciam maiusculas/minusculas - use nomes distintos.
 param(
     [Parameter(Mandatory = $true)] [string] $Dir,   # pasta do modelo dentro de C:\LLM\models
-    [ValidateSet('qwen', 'gemma')] [string] $Preset = 'qwen',
+    [ValidateSet('qwen', 'gemma', 'coder')] [string] $Preset = 'qwen',
     [int] $Ctx = 32768,
     [switch] $Vision,
     [int] $Port = 8080
@@ -76,6 +76,9 @@ $llamaArgs = @(
 $llamaArgs += $tunedArgs
 if ($Preset -eq 'gemma') {
     $llamaArgs += @('--temp', '1.0', '--top-p', '0.95', '--top-k', '64', '--min-p', '0')
+} elseif ($Preset -eq 'coder') {
+    # valores recomendados pela Qwen para o Qwen3-Coder
+    $llamaArgs += @('--temp', '0.7', '--top-p', '0.8', '--top-k', '20', '--repeat-penalty', '1.05')
 } else {
     $llamaArgs += @('--temp', '0.6', '--top-p', '0.95', '--top-k', '20', '--min-p', '0')
 }

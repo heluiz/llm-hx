@@ -1,5 +1,5 @@
 # LLM-HX otimizador - mede configuracoes no SEU PC e salva a mais rapida de cada modelo.
-# Os lancadores (1-, 2-, 3-) passam a usar o resultado automaticamente (C:\LLM\tuned\<modelo>.json).
+# Os lancadores (1- a 4-) passam a usar o resultado automaticamente (C:\LLM\tuned\<modelo>.json).
 # Compativel com Windows PowerShell 5.1. Mantenha este arquivo so com ASCII.
 # Obs.: variaveis do PowerShell NAO diferenciam maiusculas/minusculas - use nomes distintos.
 param([string[]] $Only)   # opcional: -Only gemma4-12b-heretic  (testa so esse modelo)
@@ -44,7 +44,8 @@ try {
 $modelList = @(
     @{ Dir = 'gemma4-12b-heretic';     Kind = 'dense'; Ctx = 16384 },
     @{ Dir = 'qwen36-35b-a3b-heretic'; Kind = 'moe';   Ctx = 32768 },
-    @{ Dir = 'qwen38-35b-a3b-apex';    Kind = 'moe';   Ctx = 32768 }
+    @{ Dir = 'qwen38-35b-a3b-apex';    Kind = 'moe';   Ctx = 32768 },
+    @{ Dir = 'qwen3-coder-30b-a3b';    Kind = 'moe';   Ctx = 32768 }
 )
 if ($Only) {
     $onlyDirs  = @($Only | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })

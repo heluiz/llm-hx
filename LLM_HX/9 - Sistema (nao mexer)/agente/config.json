@@ -1,0 +1,22 @@
+{
+    "distro": "AgenteHX",
+    "pastaDistro": "C:\\LLM\\Agente\\wsl",
+    "pastaDownload": "C:\\LLM\\Agente\\download",
+    "porta": 8090,
+    "contexto": 65536,
+    "modeloPadrao": "qwen36-35b-a3b-heretic",
+    "agentePadrao": "opencode",
+    "raciocinio": "padrao",
+    "pausaPregao": {
+        "ativa": true,
+        "dias": "seg,ter,qua,qui,sex",
+        "inicio": "09:00",
+        "fim": "13:30"
+    },
+    "pausarSeNinjaTraderAberto": false,
+    "tentativasPorTarefa": 4,
+    "minutosPorRodada": 60,
+    "rodadasMaximas": 400,
+    "versaoOpenCode": "1.19.5",
+    "versaoClaudeCode": "2.1.319"
+}
