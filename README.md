@@ -21,6 +21,8 @@ Fica em `LLM_HX/4 - Agente (tarefas longas)`. Roda numa distro WSL separada (Age
 
 Os scripts do Windows e o `config.json` (pausa do pregão, modelo e agente padrão) ficam em `LLM_HX/9 - Sistema (nao mexer)/agente/`. A subpasta `wsl/` vai para `/opt/agente-hx` dentro da distro; os atalhos levam a versão nova sozinhos quando o kit muda. O guia completo é o `COMO-USAR.txt` da pasta do agente.
 
+Plugins e MCPs (`wsl/extras/`, instalados sozinhos na distro): REA para engenharia reversa (comando, servidor MCP no modo chat e skill), com o Ghidra e o JADX copiados do `C:\tools` e o Java 21; as skills do Ponytail (licença MIT); o Pyright, com o plugin `pyright-lsp` no Claude Code; e bibliotecas Python para Word, Excel e PDF. O Node.js e os pacotes npm são baixados na instalação e não ficam neste repositório.
+
 ## Restaurar
 
 Copie cada pasta de volta para o lugar indicado na tabela. Os modelos e o ComfyUI precisam ser baixados de novo; o `LLM_HX/1 - Texto (LLMs)/INSTALAR-ATUALIZAR.bat` instala ou atualiza o llama.cpp e os modelos de texto. A distro do agente (C:\LLM\Agente) não fica aqui: o `0-INSTALAR-AGENTE.bat` cria uma nova.

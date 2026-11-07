@@ -81,16 +81,36 @@ fi
 
 ESTADO_DIR="$HOME/.agente-hx"
 mkdir -p "$ESTADO_DIR"
+
+# Extras: o servidor MCP do REA entra so no modo conversa (o modo sozinho fica leve).
+# Esquemas "compact" e sem esquema de saida: gasta pouco dos 64K de contexto do modelo local.
+USA_REA=0
+REA_ENV='{}'
+if command -v rea >/dev/null 2>&1 && [ "${AGENTE_HX_SEM_MCP:-0}" != 1 ]; then
+  USA_REA=1
+  if [ -r "$AGENTE_HX_EXTRAS_DIR/rea.env" ]; then
+    REA_ENV="$(jq -Rn '[inputs | select(test("^[A-Z_][A-Z0-9_]*=")) | capture("^(?<key>[A-Z_][A-Z0-9_]*)=(?<value>.*)$")] | from_entries' \
+      < "$AGENTE_HX_EXTRAS_DIR/rea.env" 2>/dev/null)" || REA_ENV='{}'
+    [ -n "$REA_ENV" ] || REA_ENV='{}'
+  fi
+  REA_ENV="$(jq -c '{REA_MCP_INPUT_SCHEMA_PROFILE: "compact", REA_MCP_OUTPUT_SCHEMA_PROFILE: "off"} + .' <<< "$REA_ENV")"
+fi
+EXTRAS_TXT=""
+[ $USA_REA -eq 1 ] && EXTRAS_TXT="REA (engenharia reversa)"
+[ -e "$HOME/.claude/skills/ponytail/SKILL.md" ] && EXTRAS_TXT="${EXTRAS_TXT:+$EXTRAS_TXT, }Ponytail"
+command -v pyright-langserver >/dev/null 2>&1 && EXTRAS_TXT="${EXTRAS_TXT:+$EXTRAS_TXT, }Pyright"
+
 echo
 echo "Projeto: $PROJETO  ($P)"
 echo "Modelo : $MODELO (contexto $CTX tokens) | agente: $AGENTE"
+[ -n "$EXTRAS_TXT" ] && echo "Extras : $EXTRAS_TXT"
 echo "Esc interrompe a resposta | Ctrl+D sai da conversa (no Claude Code tambem /exit)"
 sleep "${AGENTE_HX_PAUSA_SEG:-3}"
 
 trap 'true' INT   # Ctrl+C e da conversa; este script so espera ela acabar
 if [ "$AGENTE" = opencode ]; then
   CFG="$ESTADO_DIR/opencode-conversa.json"
-  jq -n --arg m "$MODELO" --arg url "$URL/v1" --argjson ctx "$CTX" '{
+  jq -n --arg m "$MODELO" --arg url "$URL/v1" --argjson ctx "$CTX" --argjson rea "$USA_REA" --argjson reaenv "$REA_ENV" '{
     "$schema": "https://opencode.ai/config.json",
     model: ("llamacpp/" + $m),
     small_model: ("llamacpp/" + $m),
@@ -117,7 +137,8 @@ if [ "$AGENTE" = opencode ]; then
       doom_loop: "ask",
       question: "allow"
     }
-  }' > "$CFG"
+  } + (if $rea == 1 then {mcp: {rea: {type: "local", command: ["rea", "mcp"], enabled: true,
+                                       environment: $reaenv}}} else {} end)' > "$CFG"
   OPENCODE_CONFIG="$CFG" OPENCODE_DISABLE_LSP_DOWNLOAD=1 OPENCODE_DISABLE_MODELS_FETCH=1 \
     opencode "$P" 8>&-
   rc=$?
@@ -130,6 +151,12 @@ else
     cat "$tmp" > "$HOME/.claude.json"
   fi
   rm -f "$tmp"
+  MCP_ARGS=()
+  if [ $USA_REA -eq 1 ]; then
+    MCPF="$ESTADO_DIR/mcp-conversa.json"
+    jq -n --argjson reaenv "$REA_ENV" '{mcpServers: {rea: {type: "stdio", command: "rea", args: ["mcp"], env: $reaenv}}}' > "$MCPF"
+    MCP_ARGS=(--mcp-config "$MCPF")
+  fi
   env -u ANTHROPIC_API_KEY \
     ANTHROPIC_BASE_URL="$URL" ANTHROPIC_AUTH_TOKEN="local-sem-chave" \
     ANTHROPIC_MODEL="$MODELO" ANTHROPIC_DEFAULT_SONNET_MODEL="$MODELO" \
@@ -137,8 +164,8 @@ else
     CLAUDE_CODE_MAX_CONTEXT_TOKENS="$CTX" CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192 \
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1 \
     CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL=1 \
-    API_TIMEOUT_MS=1800000 BASH_DEFAULT_TIMEOUT_MS=600000 BASH_MAX_TIMEOUT_MS=1800000 \
-    claude --model "$MODELO" --permission-mode acceptEdits --disallowedTools "WebSearch" 8>&-
+    API_TIMEOUT_MS=1800000 BASH_DEFAULT_TIMEOUT_MS=600000 BASH_MAX_TIMEOUT_MS=1800000 MAX_MCP_OUTPUT_TOKENS=8000 \
+    claude --model "$MODELO" --permission-mode acceptEdits --disallowedTools "WebSearch" "${MCP_ARGS[@]}" 8>&-
   rc=$?
 fi
 trap - INT

@@ -11,6 +11,15 @@ export PATH="$HOME/.opencode/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
 export OPENCODE_DISABLE_AUTOUPDATE=1
 export DISABLE_AUTOUPDATER=1
 
+# Ferramentas extras (REA, Java, Ghidra, JADX): variaveis que o instalar-extras.sh gravou.
+AGENTE_HX_EXTRAS_DIR="${AGENTE_HX_EXTRAS_DIR:-/opt/agente-hx-extras}"
+if [ -r "$AGENTE_HX_EXTRAS_DIR/rea.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . "$AGENTE_HX_EXTRAS_DIR/rea.env"
+  set +a
+fi
+
 ts() { date '+%Y-%m-%d %H:%M:%S'; }
 info() { printf '[%s] %s\n' "$(ts)" "$*"; }
 aviso() { printf '[%s] AVISO: %s\n' "$(ts)" "$*" >&2; }
