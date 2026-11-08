@@ -45,7 +45,7 @@ echo "[plugins e MCPs]"
 EX="$AGENTE_HX_EXTRAS_DIR"
 if command -v node >/dev/null 2>&1; then ok "node $(node -v 2>/dev/null)"; else obs "node: ainda nao (os extras instalam no proximo atalho ou no ATUALIZAR-SCRIPTS)"; fi
 rea_v="$(jq -r '.version // empty' "$EX/npm/lib/node_modules/rea-agents/package.json" 2>/dev/null)"
-if command -v rea >/dev/null 2>&1 && [ -n "$rea_v" ]; then ok "REA $rea_v (MCP no modo conversa; comando rea nos dois modos)"; else obs "REA: nao instalado"; fi
+if command -v rea >/dev/null 2>&1 && [ -n "$rea_v" ]; then ok "REA $rea_v (comando rea; o MCP fica desligado: 207 ferramentas nao cabem no contexto)"; else obs "REA: nao instalado"; fi
 if [ -n "${GHIDRA_INSTALL_DIR:-}" ] && [ -d "$GHIDRA_INSTALL_DIR" ]; then ok "Ghidra: $(basename "$GHIDRA_INSTALL_DIR")"; else obs "Ghidra: nao (o REA analisa JavaScript e .NET sem ele)"; fi
 if [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/java" ]; then ok "Java: $("$JAVA_HOME/bin/java" -version 2>&1 | grep -v '^Picked up' | head -n1)"; else obs "Java: nao"; fi
 if [ -n "${REA_JADX_MCP_JAR:-}" ] && [ -f "$REA_JADX_MCP_JAR" ]; then ok "JADX: $(basename "$REA_JADX_MCP_JAR")"; else obs "JADX: nao (so faz falta para apps Android)"; fi
