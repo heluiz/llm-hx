@@ -103,10 +103,11 @@ function Get-AgUncProjetos([string]$DistroName) {
 function Get-AgModelInfo([string]$DirName) {
     $preset = 'qwen'
     $nota = ''
-    if ($DirName -match 'coder') { $preset = 'coder'; $nota = 'especialista em codigo - o mais indicado para o agente' }
+    if ($DirName -eq 'qwen36-35b-a3b') { $nota = 'oficial da Qwen (2026) - o mais indicado para o agente: chama ferramentas sem erro' }
+    elseif ($DirName -match 'coder') { $preset = 'coder'; $nota = 'especialista em codigo (2025)' }
     elseif ($DirName -match '^gemma') { $preset = 'gemma'; $nota = 'o mais rapido, porem o menos capaz em tarefas longas' }
-    elseif ($DirName -match 'qwen36') { $nota = 'o melhor geral dos seus modelos' }
-    elseif ($DirName -match 'apex') { $nota = 'mais leve na RAM; o autor avisa que pode se repetir em respostas longas' }
+    elseif ($DirName -match 'qwen36') { $nota = 'versao modificada (abliterated): erra mais nas ferramentas que a oficial' }
+    elseif ($DirName -match 'apex') { $nota = 'versao modificada (abliterated), mais leve na RAM; pode se repetir em respostas longas' }
     return [pscustomobject]@{ Preset = $preset; Nota = $nota }
 }
 
@@ -133,6 +134,64 @@ function Get-AgModels {
     return $found
 }
 
+# ---------- molde de conversa (chat template) corrigido
+# Os moldes do Qwen 3.5 em diante recusam uma 2a mensagem de sistema ("System message must be at the
+# beginning") e o OpenCode e o Claude Code mandam mais de uma: o servidor respondia erro 500 e o agente
+# ficava repetindo o pedido. A correcao poe cada mensagem extra no lugar em que ela chegou, como um bloco
+# de sistema; o comeco da conversa nao muda, entao o servidor continua reaproveitando o que ja leu.
+$AgTemplates = Join-Path $AgKit 'templates'
+function Get-AgCount([string]$Text, [string]$Part) {
+    if (-not $Part) { return 0 }
+    return [int](($Text.Length - $Text.Replace($Part, '').Length) / $Part.Length)
+}
+function Get-AgTemplateFix([string]$TemplateText) {
+    # Devolve o molde corrigido, ou $null se ele nao tem a regra (ou tem um formato que nao conheco).
+    $ruleFrom = "{{- raise_exception('System message must be at the beginning.') }}"
+    $ruleTo = "{{- '<|im_start|>system\n' + content + '<|im_end|>\n' }}"
+    $roleFrom = '{%- if message.role == "system" %}'
+    $roleTo = '{%- if message.role == "system" or message.role == "developer" %}'
+    $itemFrom = "{{- raise_exception('Unexpected item type in content.') }}"
+    $itemTo = "{{- '' }}"
+    $mustHave = '{%- set content = render_content(message.content, true)|trim %}'
+    if ((-not $TemplateText) -or (-not $TemplateText.Contains($ruleFrom)) -or (-not $TemplateText.Contains($mustHave))) { return $null }
+    $fixedText = $TemplateText.Replace($ruleFrom, $ruleTo)
+    if ((Get-AgCount $fixedText $roleFrom) -eq 1) { $fixedText = $fixedText.Replace($roleFrom, $roleTo) }
+    $fixedText = $fixedText.Replace($itemFrom, $itemTo)
+    return "{# Agente HX: molde corrigido - aceita mensagens de sistema no meio da conversa (OpenCode, Claude Code) #}`n" + $fixedText
+}
+function Get-AgTemplatePaths($ModelObj) {
+    return [pscustomobject]@{
+        Jinja = (Join-Path $AgTemplates "$($ModelObj.Dir).jinja")
+        Origem = (Join-Path $AgTemplates "$($ModelObj.Dir).origem.txt")
+        Chave = ('{0}|{1}' -f $ModelObj.File.Name, $ModelObj.File.Length)
+    }
+}
+function Get-AgTemplateState($ModelObj) {
+    # corrigido = usar o .jinja; sem-correcao = o molde do modelo ja serve; desconhecido = conferir no servidor
+    $tplPaths = Get-AgTemplatePaths $ModelObj
+    if (-not (Test-Path -LiteralPath $tplPaths.Origem)) { return 'desconhecido' }
+    $originLine = "$(Get-Content -LiteralPath $tplPaths.Origem -TotalCount 1)".Trim()
+    if ($originLine -eq "$($tplPaths.Chave)|sem-correcao") { return 'sem-correcao' }
+    if (($originLine -eq "$($tplPaths.Chave)|corrigido") -and (Test-Path -LiteralPath $tplPaths.Jinja)) { return 'corrigido' }
+    return 'desconhecido'
+}
+function Update-AgTemplateFromServer($ModelObj, [int]$PortNum) {
+    # Le o molde que o servidor carregou do .gguf (/props) e grava a versao corrigida, se precisar.
+    $tplPaths = Get-AgTemplatePaths $ModelObj
+    $propsObj = $null
+    try { $propsObj = Invoke-RestMethod -Uri "http://127.0.0.1:$PortNum/props" -TimeoutSec 15 } catch { return 'erro' }
+    $tplText = "$($propsObj.chat_template)"
+    if (-not $tplText) { return 'erro' }
+    New-Item -ItemType Directory -Force -Path $AgTemplates | Out-Null
+    $fixedText = Get-AgTemplateFix $tplText
+    if ($null -eq $fixedText) {
+        Set-Content -LiteralPath $tplPaths.Origem -Value "$($tplPaths.Chave)|sem-correcao" -Encoding ASCII
+        return 'sem-correcao'
+    }
+    [System.IO.File]::WriteAllText($tplPaths.Jinja, $fixedText, (New-Object System.Text.UTF8Encoding($false)))
+    Set-Content -LiteralPath $tplPaths.Origem -Value "$($tplPaths.Chave)|corrigido" -Encoding ASCII
+    return 'corrigido'
+}
 function Get-AgSamplingArgs([string]$PresetName) {
     if ($PresetName -eq 'gemma') { return @('--temp', '1.0', '--top-p', '0.95', '--top-k', '64', '--min-p', '0') }
     if ($PresetName -eq 'coder') { return @('--temp', '0.7', '--top-p', '0.8', '--top-k', '20', '--repeat-penalty', '1.05') }

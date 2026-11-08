@@ -1,5 +1,5 @@
 # LLM-HX setup - instala llama.cpp (CUDA) e baixa os modelos Abliterated
-# Destino: C:\LLM (fora do OneDrive/Desktop para nao sincronizar ~65 GB)
+# Destino: C:\LLM (fora do OneDrive/Desktop para nao sincronizar ~70 GB)
 # Pode rodar de novo a qualquer momento: atualiza o llama.cpp e retoma downloads interrompidos.
 # Compativel com Windows PowerShell 5.1. Mantenha este arquivo so com ASCII (5.1 le .ps1 sem BOM como ANSI).
 # Obs.: variaveis do PowerShell NAO diferenciam maiusculas/minusculas - use nomes distintos.
@@ -106,9 +106,10 @@ $plan = @(
        Want = @('IQ4_XS\.gguf$', 'mmproj.*\.gguf$') },
     @{ Repo = 'IsValorum/Qwen3.8-35B-A3B-Distill-MTP-APEX-I-MiniPlus-V2.1-Abliterated-GGUF'; Dir = 'qwen38-35b-a3b-apex';
        Want = @('Abliterated\.gguf$', 'mmproj.*\.gguf$') },
-    # Especialista em codigo (modelo original da Qwen, sem alteracao). Usado pelo agente de tarefas longas.
-    @{ Repo = 'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF'; Dir = 'qwen3-coder-30b-a3b';
-       Want = @('Instruct-Q4_K_M\.gguf$') }
+    # Qwen3.6 OFICIAL (sem alteracao), sucessor do Qwen3-Coder: o mais indicado para o agente de tarefas longas,
+    # porque chama ferramentas de forma confiavel (as versoes "abliterated" erram mais nisso).
+    @{ Repo = 'unsloth/Qwen3.6-35B-A3B-GGUF'; Dir = 'qwen36-35b-a3b';
+       Want = @('Qwen3\.6-35B-A3B-UD-Q4_K_M\.gguf$', 'mmproj-F16\.gguf$') }
 )
 
 $problems = 0

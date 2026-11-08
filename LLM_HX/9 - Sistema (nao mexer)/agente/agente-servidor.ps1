@@ -23,12 +23,16 @@ if ($Dir) {
     Write-Host ''
     Write-Host '=== Agente HX: escolha o modelo do agente ===' -ForegroundColor Cyan
     $defaultPick = 1
+    $defaultDir = ''
+    foreach ($wanted in @("$($cfg.modeloPadrao)", 'qwen36-35b-a3b', 'qwen36-35b-a3b-heretic')) {
+        if ((-not $defaultDir) -and ($models | Where-Object { $_.Dir -eq $wanted })) { $defaultDir = $wanted }
+    }
     for ($idx = 0; $idx -lt $models.Count; $idx++) {
         $item = $models[$idx]
         $speedTxt = ''
         if ($item.Tuned -and $item.Tuned.gen_tok_s) { $speedTxt = ", ~$($item.Tuned.gen_tok_s) tok/s" }
         $star = ' '
-        if ($item.Dir -eq "$($cfg.modeloPadrao)") { $star = '*'; $defaultPick = $idx + 1 }
+        if ($item.Dir -eq $defaultDir) { $star = '*'; $defaultPick = $idx + 1 }
         Write-Host ('  {0}{1}) {2}  ({3} GB{4})' -f $star, ($idx + 1), $item.Dir, $item.SizeGb, $speedTxt)
         if ($item.Nota) { Write-Host ('       {0}' -f $item.Nota) -ForegroundColor DarkGray }
     }
@@ -71,8 +75,11 @@ $baseArgs += $tunedArgs
 $baseArgs += (Get-AgSamplingArgs $model.Preset)
 if ("$($cfg.raciocinio)" -eq 'desligado') { $baseArgs += @('--reasoning', 'off') }
 
+$tplPaths = Get-AgTemplatePaths $model
+$tplState = Get-AgTemplateState $model
 function Get-StartArgs {
     $startArgs = @($baseArgs)
+    if ($tplState -eq 'corrigido') { $startArgs += @('--chat-template-file', $tplPaths.Jinja) }
     if ($tunedLoadMode) {
         # Modo "RAM" so se houver memoria livre agora (NinjaTrader aberto pode estar usando); senao fica no mmap.
         $freeMiB = $null
@@ -85,6 +92,7 @@ function Get-StartArgs {
 if ($Simular) {
     Write-Host "Modelo  : $($model.Dir)  ($($model.SizeGb) GB)"
     Write-Host "Comando : `"$serverExe`" $(ConvertTo-AgArgString (Get-StartArgs))"
+    Write-Host "Molde   : $tplState (corrigido = aceita as mensagens de sistema do OpenCode e do Claude Code)"
     Write-Host ("Agora   : pausa do pregao = {0}; pausado por voce = {1}" -f (Test-AgPregao $cfg (Get-Date)), (Test-Path $AgPauseFlag))
     exit 0
 }
@@ -149,8 +157,19 @@ try {
         $isRunning = ($null -ne $srvProc) -and (-not $srvProc.HasExited)
         if (($null -ne $srvProc) -and $srvProc.HasExited) {
             # caiu sozinho (nao fomos nos que paramos)
-            Write-Status ("o llama-server fechou sozinho (codigo {0}). Ultimas linhas:" -f $srvProc.ExitCode) 'Red'
-            if (Test-Path $errFile) { Get-Content $errFile -Tail 8 | ForEach-Object { Write-Host "   $_" -ForegroundColor DarkGray } }
+            $exitCode = $null
+            try { $exitCode = $srvProc.ExitCode } catch { }
+            $exitTxt = "$exitCode"
+            if ($exitCode -eq -1073741510) { $exitTxt = "$exitCode = fechado por Ctrl+C ou junto com a janela" }
+            Write-Status ("o llama-server fechou sozinho (codigo {0}). Ultimas linhas do log:" -f $exitTxt) 'Red'
+            foreach ($tailFile in @($srvLog, $errFile)) {
+                if (Test-Path $tailFile) {
+                    Get-Content $tailFile -Tail 8 | ForEach-Object {
+                        Write-Host "   $_" -ForegroundColor DarkGray
+                        Add-Content -Path (Join-Path $AgLogs 'servidor-historico.txt') -Value "      $_"
+                    }
+                }
+            }
             [void]$crashTimes.Add($now)
             $recent = @($crashTimes | Where-Object { $_ -gt $now.AddMinutes(-15) })
             if ($recent.Count -ge 3) {
@@ -173,13 +192,31 @@ try {
             $readyShown = $false
         } else {
             if (-not $isRunning) {
+                if ((Test-Path $srvLog) -and ((Get-Item $srvLog).Length -gt 0)) {
+                    Move-Item -LiteralPath $srvLog -Destination ($srvLog -replace '\.log$', '.anterior.log') -Force -ErrorAction SilentlyContinue
+                }
                 $srvProc = Start-Process -FilePath $serverExe -ArgumentList (ConvertTo-AgArgString (Get-StartArgs)) -NoNewWindow -PassThru `
                     -RedirectStandardOutput $outFile -RedirectStandardError $errFile
+                try { $null = $srvProc.Handle } catch { }
                 try { $srvProc.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::BelowNormal } catch { }   # NinjaTrader na frente
                 $readyShown = $false
             }
             $state = 'LIGANDO (carregando o modelo...)'
             if (Test-AgServer $port) { $state = "LIGADO e pronto em http://127.0.0.1:$port" }
+            if (($state -like 'LIGADO*') -and ($tplState -eq 'desconhecido')) {
+                $tplCheck = Update-AgTemplateFromServer $model $port
+                if ($tplCheck -eq 'corrigido') {
+                    $tplState = 'corrigido'
+                    Write-Status 'molde de conversa do modelo corrigido (OpenCode e Claude Code mandam mais de uma mensagem de sistema); religando uma vez...' 'Yellow'
+                    Stop-Process -Id $srvProc.Id -Force -ErrorAction SilentlyContinue
+                    try { [void]$srvProc.WaitForExit(30000) } catch { }
+                    $srvProc = $null
+                    $lastState = ''
+                    Start-Sleep -Seconds 2
+                    continue
+                }
+                if ($tplCheck -eq 'sem-correcao') { $tplState = 'sem-correcao' }
+            }
         }
         if ($state -ne $lastState) {
             $stateColor = 'Gray'

@@ -4,7 +4,7 @@
     "pastaDownload": "C:\\LLM\\Agente\\download",
     "porta": 8090,
     "contexto": 65536,
-    "modeloPadrao": "qwen36-35b-a3b-heretic",
+    "modeloPadrao": "qwen36-35b-a3b",
     "agentePadrao": "opencode",
     "raciocinio": "padrao",
     "pausaPregao": {

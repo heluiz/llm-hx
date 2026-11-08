@@ -44,10 +44,12 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
     Se aparecer FALHA, rode "9-DIAGNOSTICO" e me mande o arquivo
     9 - Sistema (nao mexer)\agente\logs\diagnostico.txt
 
- Modelo especialista em código: rode "1 - Texto (LLMs)\INSTALAR-
- ATUALIZAR" (fora do pregão). Ele baixa o Qwen3-Coder-30B (18,6 GB)
- e também atualiza o llama.cpp, se houver versão nova. Depois, se
- quiser, "OTIMIZAR" ajusta a velocidade de cada modelo.
+ Modelo recomendado para o agente: rode "1 - Texto (LLMs)\INSTALAR-
+ ATUALIZAR" (fora do pregão). Ele baixa o Qwen3.6-35B-A3B OFICIAL
+ (23 GB): o mesmo modelo do seu "heretic", mas sem a modificação
+ "abliterated", que atrapalha o uso de ferramentas. Também atualiza o
+ llama.cpp, se houver versão nova. Depois rode o "OTIMIZAR" para
+ ajustar a velocidade dele.
 
  Quando eu mandar uma atualização do kit, não precisa fazer nada: o
  próximo atalho que você abrir avisa "scripts desatualizados" e leva
@@ -66,12 +68,19 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
     - impede o Windows de suspender enquanto estiver aberta;
     - roda o modelo com prioridade baixa, para o NinjaTrader vir antes.
  4. Fechar a janela desliga o modelo e libera a placa de vídeo.
+ 5. Na primeira vez com um modelo novo, ela confere o "molde de
+    conversa" dele e, se precisar, corrige e religa uma vez (leva um
+    minuto a mais). Sem isso, o OpenCode e o Claude Code travam: eles
+    mandam mais de uma instrução de sistema e os moldes do Qwen 3.5
+    em diante recusam.
 
  Qual modelo usar:
-   qwen3-coder-30b-a3b     especialista em código - o mais indicado
-   qwen36-35b-a3b-heretic  o melhor geral dos seus - bom para começar
+   qwen36-35b-a3b          OFICIAL - o mais indicado para o agente
+                           (baixe pelo INSTALAR-ATUALIZAR)
+   qwen36-35b-a3b-heretic  versão modificada: funciona, mas erra mais
+                           ao chamar ferramentas
    gemma4-12b-heretic      o mais rápido, mas se perde mais em tarefas longas
-   qwen38-35b-a3b-apex     o autor avisa que pode se repetir em respostas longas
+   qwen38-35b-a3b-apex     versão modificada; pode se repetir em respostas longas
 
  O agente usa contexto de 64K tokens. Os atalhos de "1 - Texto
  (LLMs)" continuam com 32K (era isso o "excede o contexto
@@ -289,10 +298,16 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
                                          projeto, ou pare com 7-PARAR.
  "tem uma conversa aberta neste          Feche a janela do 4 desse
   projeto" (no 3)                        projeto e rode o 3 de novo.
+ Agente parado, "API Error 500" ou       Era o molde de conversa do
+  tentando de novo sem parar             modelo (corrigido em 07/11). Com
+                                         modelo novo, abra o 1-LIGAR-
+                                         SERVIDOR: ele confere e corrige
+                                         sozinho. Se continuar, rode o
+                                         9-DIAGNOSTICO e me mande.
  Toda tarefa vira [!] bloqueada          Tarefas grandes demais ou SPEC
                                          vaga. Quebre em tarefas menores,
-                                         dê exemplos na SPEC e tente o
-                                         qwen3-coder.
+                                         dê exemplos na SPEC e use o
+                                         qwen36-35b-a3b oficial.
  "verificacao passou, mas o agente       O modelo fez o trabalho e não
   nao confirmou"                         avisou. Normal de vez em quando;
                                          se for sempre, troque o modelo.
@@ -304,5 +319,7 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
                                          Na tomada, deixe a tampa aberta
                                          ou configure "ao fechar a
                                          tampa: nada fazer".
- Qualquer outra coisa                    Rode 9-DIAGNOSTICO e me mande o
-                                         logs\diagnostico.txt
+ Qualquer outra coisa                    Rode 9-DIAGNOSTICO e me avise:
+                                         eu leio o logs\diagnostico.txt e
+                                         a pasta logs\projetos (o que o
+                                         agente fez em cada projeto).

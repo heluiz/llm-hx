@@ -54,10 +54,16 @@ foreach ($m in $modelList) {
     $tunedTxt = 'sem otimizacao'
     if ($m.Tuned) { $tunedTxt = "otimizado: ~$($m.Tuned.gen_tok_s) tok/s" }
     Mark-Ok ("{0}  ({1} GB, {2})" -f $m.Dir, $m.SizeGb, $tunedTxt)
+    $tplNow = Get-AgTemplateState $m
+    $tplTxt = @{ 'corrigido' = 'corrigido (aceita o OpenCode e o Claude Code)'; 'sem-correcao' = 'original (nao precisa de correcao)'; 'desconhecido' = 'ainda nao conferido (o 1-LIGAR-SERVIDOR confere e corrige no primeiro uso)' }[$tplNow]
+    Mark-Info ("   molde de conversa: {0}" -f $tplTxt)
 }
 if ($cfg -and $modelList.Count -gt 0) {
-    $simDir = "$($cfg.modeloPadrao)"
-    if (-not ($modelList | Where-Object { $_.Dir -eq $simDir })) { $simDir = $modelList[0].Dir }
+    $simDir = ''
+    foreach ($wanted in @("$($cfg.modeloPadrao)", 'qwen36-35b-a3b', 'qwen36-35b-a3b-heretic')) {
+        if ((-not $simDir) -and ($modelList | Where-Object { $_.Dir -eq $wanted })) { $simDir = $wanted }
+    }
+    if (-not $simDir) { $simDir = $modelList[0].Dir }
     Write-Host "  comando do servidor para $simDir :"
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $AgKit 'agente-servidor.ps1') -Dir $simDir -Simular 2>&1 | ForEach-Object { Write-Host "     $_" }
 }
@@ -82,6 +88,53 @@ if ($cfg -and (Test-AgDistro "$($cfg.distro)")) {
     $inside = Invoke-Wsl @('-d', "$($cfg.distro)", '--cd', '~', '-e', "$AgWslKit/bin/agente-verificar.sh", '--porta', "$($cfg.porta)")
     $inside.Text -split "`n" | ForEach-Object { Write-Host ($_.TrimEnd("`r")) }
     if ($inside.Code -ne 0) { $problemCount++ }
+
+    # Copia o fim dos arquivos de cada projeto (plano, diario, logs das rodadas, git) e dos logs do
+    # OpenCode para logs\projetos: e o que eu preciso para entender o que o agente fez.
+    Write-Host ''
+    Write-Host '[evidencias para suporte]'
+    $evidDir = Join-Path $AgLogs 'projetos'
+    try {
+        if (Test-Path -LiteralPath $evidDir) { Remove-Item -LiteralPath $evidDir -Recurse -Force -ErrorAction SilentlyContinue }
+        New-Item -ItemType Directory -Force -Path $evidDir | Out-Null
+        $projRoot = Get-AgUncProjetos "$($cfg.distro)"
+        $copiedCount = 0
+        if (Test-Path -LiteralPath $projRoot) {
+            foreach ($projDir in @(Get-ChildItem -LiteralPath $projRoot -Directory -ErrorAction SilentlyContinue)) {
+                $projDest = Join-Path $evidDir $projDir.Name
+                New-Item -ItemType Directory -Force -Path $projDest | Out-Null
+                $pickList = @()
+                foreach ($docName in @('SPEC.md', 'PLAN.md', 'PROGRESS.md', 'RELATORIO.md')) {
+                    $docPath = Join-Path $projDir.FullName $docName
+                    if (Test-Path -LiteralPath $docPath) { $pickList += Get-Item -LiteralPath $docPath }
+                }
+                $roundDir = Join-Path (Join-Path $projDir.FullName '.agente') 'logs'
+                if (Test-Path -LiteralPath $roundDir) {
+                    $pickList += @(Get-ChildItem -LiteralPath $roundDir -File -Filter 'rodada-*.log' -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 6)
+                }
+                foreach ($srcFile in $pickList) {
+                    Get-Content -LiteralPath $srcFile.FullName -Tail 400 -Encoding UTF8 -ErrorAction SilentlyContinue |
+                        Set-Content -LiteralPath (Join-Path $projDest $srcFile.Name) -Encoding UTF8
+                    $copiedCount++
+                }
+                $gitLog = Invoke-Wsl @('-d', "$($cfg.distro)", '--cd', '~', '-e', 'git', '-C', "projetos/$($projDir.Name)", 'log', '--oneline', '-30')
+                if ($gitLog.Code -eq 0) { Set-Content -LiteralPath (Join-Path $projDest 'git-log.txt') -Value $gitLog.Text -Encoding UTF8 }
+            }
+        }
+        $ocLogDir = Join-Path (Split-Path $projRoot -Parent) '.local\share\opencode\log'
+        if (Test-Path -LiteralPath $ocLogDir) {
+            $ocDest = Join-Path $evidDir '_opencode'
+            New-Item -ItemType Directory -Force -Path $ocDest | Out-Null
+            foreach ($ocLog in @(Get-ChildItem -LiteralPath $ocLogDir -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime | Select-Object -Last 3)) {
+                Get-Content -LiteralPath $ocLog.FullName -Tail 400 -Encoding UTF8 -ErrorAction SilentlyContinue |
+                    Set-Content -LiteralPath (Join-Path $ocDest $ocLog.Name) -Encoding UTF8
+                $copiedCount++
+            }
+        }
+        Mark-Ok ("{0} arquivo(s) copiados para {1}" -f $copiedCount, $evidDir)
+    } catch {
+        Mark-Info "nao consegui copiar as evidencias: $($_.Exception.Message)"
+    }
 } else {
     Mark-Bad 'a distro do agente nao existe (rode 0-INSTALAR-AGENTE)'
 }

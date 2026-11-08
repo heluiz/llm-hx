@@ -45,7 +45,7 @@ $modelList = @(
     @{ Dir = 'gemma4-12b-heretic';     Kind = 'dense'; Ctx = 16384 },
     @{ Dir = 'qwen36-35b-a3b-heretic'; Kind = 'moe';   Ctx = 32768 },
     @{ Dir = 'qwen38-35b-a3b-apex';    Kind = 'moe';   Ctx = 32768 },
-    @{ Dir = 'qwen3-coder-30b-a3b';    Kind = 'moe';   Ctx = 32768 }
+    @{ Dir = 'qwen36-35b-a3b';         Kind = 'moe';   Ctx = 32768 }
 )
 if ($Only) {
     $onlyDirs  = @($Only | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
