@@ -82,11 +82,12 @@ fi
 ESTADO_DIR="$HOME/.agente-hx"
 mkdir -p "$ESTADO_DIR"
 
-# Extras: o servidor MCP do REA entra so no modo conversa (o modo sozinho fica leve).
-# Esquemas "compact" e sem esquema de saida: gasta pouco dos 64K de contexto do modelo local.
+# Extras: o servidor MCP do REA fica DESLIGADO. Ele anuncia 207 ferramentas, ~60 mil tokens mesmo com
+# os esquemas "compact": quase todo o contexto de 64K do modelo local, e o agente quase nao anda.
+# O comando "rea" continua no terminal (rea --help). Ligar o MCP so com AGENTE_HX_REA_MCP=1 e contexto grande.
 USA_REA=0
 REA_ENV='{}'
-if command -v rea >/dev/null 2>&1 && [ "${AGENTE_HX_SEM_MCP:-0}" != 1 ]; then
+if command -v rea >/dev/null 2>&1 && [ "${AGENTE_HX_REA_MCP:-0}" = 1 ]; then
   USA_REA=1
   if [ -r "$AGENTE_HX_EXTRAS_DIR/rea.env" ]; then
     REA_ENV="$(jq -Rn '[inputs | select(test("^[A-Z_][A-Z0-9_]*=")) | capture("^(?<key>[A-Z_][A-Z0-9_]*)=(?<value>.*)$")] | from_entries' \
@@ -96,7 +97,8 @@ if command -v rea >/dev/null 2>&1 && [ "${AGENTE_HX_SEM_MCP:-0}" != 1 ]; then
   REA_ENV="$(jq -c '{REA_MCP_INPUT_SCHEMA_PROFILE: "compact", REA_MCP_OUTPUT_SCHEMA_PROFILE: "off"} + .' <<< "$REA_ENV")"
 fi
 EXTRAS_TXT=""
-[ $USA_REA -eq 1 ] && EXTRAS_TXT="REA (engenharia reversa)"
+if [ $USA_REA -eq 1 ]; then EXTRAS_TXT="REA (MCP ligado: gasta ~60 mil tokens de contexto)"
+elif command -v rea >/dev/null 2>&1; then EXTRAS_TXT="REA (comando rea no terminal)"; fi
 [ -e "$HOME/.claude/skills/ponytail/SKILL.md" ] && EXTRAS_TXT="${EXTRAS_TXT:+$EXTRAS_TXT, }Ponytail"
 command -v pyright-langserver >/dev/null 2>&1 && EXTRAS_TXT="${EXTRAS_TXT:+$EXTRAS_TXT, }Pyright"
 

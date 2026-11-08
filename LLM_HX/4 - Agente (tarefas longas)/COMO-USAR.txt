@@ -139,8 +139,9 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
  Na primeira vez que você abrir um atalho depois desta atualização,
  ele instala dentro da distro (uma vez só, alguns minutos):
    REA 6.5.0       engenharia reversa ("Reverse Engineer Anything"),
-                   o mesmo que você usa no Codex: o comando rea, o
-                   servidor MCP e a skill reverse-engineer-anything
+                   o mesmo que você usa no Codex: o comando rea e a
+                   skill reverse-engineer-anything (o MCP fica
+                   desligado, veja abaixo)
    Ghidra e JADX   copiados do seu C:\tools, com o Java 21. O REA usa
                    para programas nativos e apps Android.
    Ponytail        as skills que você usa no Codex: ponytail,
@@ -149,13 +150,15 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
                    editar (no Claude Code, pelo plugin pyright-lsp)
    Python          bibliotecas para criar Word, Excel e PDF
 
- Onde funciona:
-   Modo chat (4)     tudo, inclusive o MCP do REA.
-   Modo sozinho (3)  skills, Pyright e o comando rea no terminal. O
-                     MCP do REA fica de fora para sobrar contexto.
+ Onde funciona: nos dois modos (chat e sozinho), com as skills, o
+ Pyright e o comando rea no terminal.
+ O MCP do REA fica DESLIGADO: ele descreve 207 ferramentas em todo
+ pedido, uns 60 mil tokens, quase todo o contexto de 64 mil do modelo.
+ Com ele ligado, o agente passava a maior parte do tempo resumindo a
+ conversa e quase não andava.
 
  Como usar no chat:
-   use o REA para analisar o app que está na pasta alvo/
+   use o comando rea para analisar o app da pasta alvo/ (rea --help)
    ponytail review nas mudanças de hoje
  O agente não enxerga o seu C:. Para analisar um programa, copie-o
  antes para a pasta do projeto (8-ABRIR-PROJETOS). Use só em
@@ -314,6 +317,10 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
  Agente lento                            Normal: cada rodada leva de 5 a
                                          30 min. No chat, a 1ª resposta
                                          demora mais (ele lê o projeto).
+                                         Até 08/11 o MCP do REA lotava o
+                                         contexto e cada passo levava ~1
+                                         min; agora fica desligado. Se
+                                         continuar, rode o 9-DIAGNOSTICO.
  Notebook dormiu                         A janela do 1 impede suspender,
                                          mas fechar a tampa pode dormir.
                                          Na tomada, deixe a tampa aberta

@@ -23,7 +23,9 @@ Os scripts do Windows e o `config.json` (pausa do pregão, modelo e agente padr�
 
 O modelo indicado para o agente é o Qwen3.6-35B-A3B oficial, que o `INSTALAR-ATUALIZAR` baixa; as versões abliterated erram mais nas chamadas de ferramenta. O molde de conversa original dos Qwen 3.5 em diante recusa uma segunda mensagem de sistema, e o OpenCode e o Claude Code mandam essa mensagem: cada pedido voltava com erro 500 e os agentes repetiam até desistir. Por isso o `1-LIGAR-SERVIDOR` liga o llama-server com um molde corrigido (`agente/templates/`), que põe essa mensagem no lugar em que ela chegou. Para um modelo novo, ele confere o molde no primeiro uso e, se precisar, corrige e religa uma vez.
 
-Plugins e MCPs (`wsl/extras/`, instalados sozinhos na distro): REA para engenharia reversa (comando, servidor MCP no modo chat e skill), com o Ghidra e o JADX copiados do `C:\tools` e o Java 21; as skills do Ponytail (licença MIT); o Pyright, com o plugin `pyright-lsp` no Claude Code; e bibliotecas Python para Word, Excel e PDF. O Node.js e os pacotes npm são baixados na instalação e não ficam neste repositório.
+Plugins e MCPs (`wsl/extras/`, instalados sozinhos na distro): REA para engenharia reversa (comando `rea` e skill), com o Ghidra e o JADX copiados do `C:\tools` e o Java 21; as skills do Ponytail (licença MIT); o Pyright, com o plugin `pyright-lsp` no Claude Code; e bibliotecas Python para Word, Excel e PDF. O Node.js e os pacotes npm são baixados na instalação e não ficam neste repositório.
+
+O servidor MCP do REA fica desligado: ele anuncia 207 ferramentas, uns 60 mil tokens mesmo com os esquemas compactos, quase todo o contexto de 64 mil do modelo local. Com ele ligado, cada passo do agente vinha seguido de um pedido extra de cerca de um minuto, e o agente quase não avançava. Para ligar mesmo assim, use `AGENTE_HX_REA_MCP=1` (só faz sentido com um contexto bem maior).
 
 ## Restaurar
 
