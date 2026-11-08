@@ -51,7 +51,8 @@ if [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/java" ]; then ok "Java: $("$J
 if [ -n "${REA_JADX_MCP_JAR:-}" ] && [ -f "$REA_JADX_MCP_JAR" ]; then ok "JADX: $(basename "$REA_JADX_MCP_JAR")"; else obs "JADX: nao (so faz falta para apps Android)"; fi
 if command -v pyright-langserver >/dev/null 2>&1; then ok "pyright (erros de Python depois de editar)"; else obs "pyright: nao"; fi
 skills_ok=""
-for s in reverse-engineer-anything ponytail ponytail-review ponytail-audit ponytail-debt; do
+for s in reverse-engineer-anything ponytail ponytail-review ponytail-audit ponytail-debt \
+         analise-binario revisao-seguranca triagem-ameaca estudo-ctf; do
   [ -f "$HOME/.claude/skills/$s/SKILL.md" ] && skills_ok="$skills_ok $s"
 done
 if [ -n "$skills_ok" ]; then ok "skills:$skills_ok"; else obs "skills: nenhuma"; fi

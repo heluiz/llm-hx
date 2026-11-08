@@ -103,12 +103,38 @@ function Get-AgUncProjetos([string]$DistroName) {
 function Get-AgModelInfo([string]$DirName) {
     $preset = 'qwen'
     $nota = ''
-    if ($DirName -eq 'qwen36-35b-a3b') { $nota = 'oficial da Qwen (2026) - o mais indicado para o agente: chama ferramentas sem erro' }
-    elseif ($DirName -match 'coder') { $preset = 'coder'; $nota = 'especialista em codigo (2025)' }
+    $modificado = ($DirName -match 'heretic|abliterated|uncensored|apex')
+    if ($DirName -match 'gpt-oss') {
+        $preset = 'gptoss'
+        if ($modificado) { $nota = 'GPT-OSS destravado (merge experimental): menos previsivel e erra mais nas ferramentas' }
+        else { $nota = 'GPT-OSS oficial (OpenAI): MoE rapido, bom para alternar' }
+    }
+    elseif ($DirName -match 'coder') {
+        $preset = 'coder'
+        if ($modificado) { $nota = 'especialista em codigo, versao destravada (abliterated): erra mais nas ferramentas que a oficial' }
+        else { $nota = 'especialista em codigo da Qwen (oficial): chama ferramentas bem' }
+    }
+    elseif ($DirName -eq 'qwen36-35b-a3b') { $nota = 'oficial da Qwen (2026) - o mais indicado para o agente: chama ferramentas sem erro' }
     elseif ($DirName -match '^gemma') { $preset = 'gemma'; $nota = 'o mais rapido, porem o menos capaz em tarefas longas' }
     elseif ($DirName -match 'qwen36') { $nota = 'versao modificada (abliterated): erra mais nas ferramentas que a oficial' }
     elseif ($DirName -match 'apex') { $nota = 'versao modificada (abliterated), mais leve na RAM; pode se repetir em respostas longas' }
     return [pscustomobject]@{ Preset = $preset; Nota = $nota }
+}
+
+# Modelos que o projeto sabe baixar (lidos do plano do setup.ps1), com a nota de cada um.
+# Serve para o menu do servidor mostrar tambem os que ainda nao foram baixados.
+function Get-AgCatalogo {
+    $setupPath = Join-Path (Split-Path $AgKit -Parent) 'setup.ps1'
+    $catalogo = @()
+    if (Test-Path -LiteralPath $setupPath) {
+        foreach ($line in (Get-Content -LiteralPath $setupPath)) {
+            if ($line -match "Dir\s*=\s*'([^']+)'") {
+                $dir = $Matches[1]
+                $catalogo += [pscustomobject]@{ Dir = $dir; Nota = (Get-AgModelInfo $dir).Nota }
+            }
+        }
+    }
+    return $catalogo
 }
 
 function Get-AgModels {
@@ -195,6 +221,7 @@ function Update-AgTemplateFromServer($ModelObj, [int]$PortNum) {
 function Get-AgSamplingArgs([string]$PresetName) {
     if ($PresetName -eq 'gemma') { return @('--temp', '1.0', '--top-p', '0.95', '--top-k', '64', '--min-p', '0') }
     if ($PresetName -eq 'coder') { return @('--temp', '0.7', '--top-p', '0.8', '--top-k', '20', '--repeat-penalty', '1.05') }
+    if ($PresetName -eq 'gptoss') { return @('--temp', '1.0', '--top-p', '1.0', '--top-k', '0') }
     return @('--temp', '0.6', '--top-p', '0.95', '--top-k', '20', '--min-p', '0')
 }
 

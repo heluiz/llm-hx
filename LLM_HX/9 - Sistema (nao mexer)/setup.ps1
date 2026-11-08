@@ -109,7 +109,19 @@ $plan = @(
     # Qwen3.6 OFICIAL (sem alteracao), sucessor do Qwen3-Coder: o mais indicado para o agente de tarefas longas,
     # porque chama ferramentas de forma confiavel (as versoes "abliterated" erram mais nisso).
     @{ Repo = 'unsloth/Qwen3.6-35B-A3B-GGUF'; Dir = 'qwen36-35b-a3b';
-       Want = @('Qwen3\.6-35B-A3B-UD-Q4_K_M\.gguf$', 'mmproj-F16\.gguf$') }
+       Want = @('Qwen3\.6-35B-A3B-UD-Q4_K_M\.gguf$', 'mmproj-F16\.gguf$') },
+    # Qwen3-Coder-30B-A3B OFICIAL (Apache 2.0): especialista em codigo da Qwen, chama ferramentas bem (~18.6 GB).
+    @{ Repo = 'unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF'; Dir = 'qwen3-coder-30b-a3b';
+       Want = @('Qwen3-Coder-30B-A3B-Instruct-Q4_K_M\.gguf$') },
+    # Qwen3-Coder-30B-A3B DESTRAVADO (abliterated, huihui-ai): menos recusas, porem erra mais nas ferramentas (~18.6 GB).
+    @{ Repo = 'mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-GGUF'; Dir = 'qwen3-coder-30b-a3b-heretic';
+       Want = @('abliterated\.Q4_K_M\.gguf$') },
+    # GPT-OSS-20B OFICIAL (OpenAI, Apache 2.0): MoE rapido; o arquivo F16 traz os especialistas em MXFP4 nativo (~13.8 GB).
+    @{ Repo = 'unsloth/gpt-oss-20b-GGUF'; Dir = 'gpt-oss-20b';
+       Want = @('gpt-oss-20b-F16\.gguf$') },
+    # GPT-OSS-20B DESTRAVADO (merge experimental "NEO" do DavidAU): menos previsivel; para teste/chat manual (~11.8 GB).
+    @{ Repo = 'DavidAU/OpenAi-GPT-oss-20b-HERETIC-uncensored-NEO-Imatrix-gguf'; Dir = 'gpt-oss-20b-heretic';
+       Want = @('NEOPlus-Uncensored-IQ4_NL\.gguf$') }
 )
 
 $problems = 0

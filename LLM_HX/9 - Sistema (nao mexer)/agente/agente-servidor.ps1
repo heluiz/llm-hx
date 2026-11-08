@@ -36,6 +36,17 @@ if ($Dir) {
         Write-Host ('  {0}{1}) {2}  ({3} GB{4})' -f $star, ($idx + 1), $item.Dir, $item.SizeGb, $speedTxt)
         if ($item.Nota) { Write-Host ('       {0}' -f $item.Nota) -ForegroundColor DarkGray }
     }
+    # Modelos do catalogo que ainda nao foram baixados: aparecem como aviso (nao da para escolher ainda).
+    $jaBaixados = @($models | ForEach-Object { $_.Dir })
+    $faltando = @(Get-AgCatalogo | Where-Object { $jaBaixados -notcontains $_.Dir })
+    if ($faltando.Count -gt 0) {
+        Write-Host ''
+        Write-Host '  Ainda nao baixados (rode "1 - Texto (LLMs)\INSTALAR-ATUALIZAR"):' -ForegroundColor DarkGray
+        foreach ($miss in $faltando) {
+            Write-Host ('     - {0}' -f $miss.Dir) -ForegroundColor DarkGray
+            if ($miss.Nota) { Write-Host ('         {0}' -f $miss.Nota) -ForegroundColor DarkGray }
+        }
+    }
     $answer = Read-Host ('Numero do modelo [Enter = {0}]' -f $defaultPick)
     $pickNum = $defaultPick
     if ($answer -match '^\s*\d+\s*$') { $pickNum = [int]$answer }
@@ -56,6 +67,11 @@ if ($model.Tuned) {
     if ($model.Tuned.threads)   { $threadCount = "$($model.Tuned.threads)" }
     if ($model.Tuned.loadMode)  { $tunedLoadMode = "$($model.Tuned.loadMode)"; $ramNeedMiB = [int]$model.Tuned.ramMiB + 2048 }
 }
+# RAM para guardar conversas ja lidas (o llama.cpp usaria 8 GB). Com 32 GB e o modelo de 21 GB, 2 GB bastam
+# e o resto fica para o modelo, a distro e o NinjaTrader.
+$cacheRamMiB = 2048
+$cacheRamTxt = Get-AgCfgValue $cfg 'cacheRam' '2048'
+if ($cacheRamTxt -match '^-?\d+$') { $cacheRamMiB = [int]$cacheRamTxt }
 $srvLog = Join-Path $AgLogs ('servidor-{0}.log' -f $model.Dir)
 $outFile = Join-Path $AgLogs 'servidor-console-out.txt'
 $errFile = Join-Path $AgLogs 'servidor-console-err.txt'
@@ -67,6 +83,7 @@ $baseArgs = @(
     '--fit', 'on',
     '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0',
     '--parallel', '1',
+    '--cache-ram', "$cacheRamMiB",
     '--threads', $threadCount,
     '--jinja',                                      # necessario para o modelo chamar ferramentas
     '--log-file', $srvLog
