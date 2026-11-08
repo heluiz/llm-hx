@@ -3,6 +3,9 @@ LLM_HX - organizacao dos atalhos (atualizado em 08/11/2026)
 1 - Texto (LLMs)        modelos de linguagem locais (llama.cpp)
    1-Qwen3.6-35B-Heretic / 2-Gemma4-12B-Heretic / 3-Qwen3.8-35B-APEX
    4-Qwen3.6-35B-Oficial Qwen3.6 oficial, o mais indicado para o agente (baixe antes com INSTALAR-ATUALIZAR)
+   5-Qwen3-Coder-30B-Oficial / 6-Qwen3-Coder-30B-Destravado   especialista em codigo
+   7-GPT-OSS-20B-Oficial / 8-GPT-OSS-20B-Destravado            MoE menor e rapido
+   (os atalhos 5 a 8 baixam com o INSTALAR-ATUALIZAR; "Destravado" = sem censura, erra mais nas ferramentas)
    OTIMIZAR              ajusta desempenho dos modelos (antigo 4-OTIMIZAR)
    INSTALAR-ATUALIZAR    instala/atualiza llama.cpp e modelos (antigo 0-INSTALAR)
 

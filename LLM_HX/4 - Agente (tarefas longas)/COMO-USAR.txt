@@ -146,6 +146,10 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
                    para programas nativos e apps Android.
    Ponytail        as skills que você usa no Codex: ponytail,
                    ponytail-review, ponytail-audit e ponytail-debt
+   Segurança       skills defensivas: analise-binario (RE com o REA),
+                   revisao-seguranca (procura falhas no código),
+                   triagem-ameaca (resume relatório e tira IOCs) e
+                   estudo-ctf (praticar em desafios de treino)
    Pyright         o agente vê os erros de Python logo depois de
                    editar (no Claude Code, pelo plugin pyright-lsp)
    Python          bibliotecas para criar Word, Excel e PDF
@@ -160,6 +164,11 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
  Como usar no chat:
    use o comando rea para analisar o app da pasta alvo/ (rea --help)
    ponytail review nas mudanças de hoje
+   use a skill revisao-seguranca neste código
+   faça a triagem desse relatório de ameaça e tire os IOCs
+ As skills de segurança são para alvos que você tem direito de
+ analisar (laboratório, amostra sua, CTF). Copie o alvo para a
+ pasta do projeto antes (o agente não enxerga o seu C:).
  O agente não enxerga o seu C:. Para analisar um programa, copie-o
  antes para a pasta do projeto (8-ABRIR-PROJETOS). Use só em
  programas que você tem direito de analisar.
@@ -181,6 +190,10 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
    OpenCode      os MCPs ficam em ~/.config/opencode/opencode.json,
                  dentro da distro (peça que eu configuro).
    Cada plugin ou MCP gasta contexto do modelo local: poucos e bons.
+
+ Regras gerais dos dois agentes (economizar contexto, REA pelo
+ comando): ~/.config/opencode/AGENTS.md e ~/.claude/CLAUDE.md, dentro
+ da distro. Para mudar, edite e apague a 1ª linha (a marca do kit).
 
 
 ---------------------------------------------------------------------
@@ -269,6 +282,11 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
    modeloPadrao          o modelo que vem marcado no 1-LIGAR-SERVIDOR.
    agentePadrao          "opencode" ou "claude" (vem marcado no 3 e no 4).
    contexto              65536 (64K). Abaixo de 32768 não funciona.
+                         131072 (128K): o agente lembra mais e resume
+                         a conversa menos vezes, mas usa mais placa de
+                         vídeo e cada resposta sai um pouco mais lenta.
+   cacheRam              2048: MB de RAM para guardar conversas já
+                         lidas (sem isso o llama.cpp usaria 8 GB).
    tentativasPorTarefa   4. Mais tentativas = mais chances e mais tempo.
    minutosPorRodada      60. Tempo máximo de cada rodada.
    rodadasMaximas        400. Freio geral de uma corrida.

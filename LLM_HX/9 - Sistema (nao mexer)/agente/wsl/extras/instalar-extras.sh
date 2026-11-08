@@ -178,7 +178,7 @@ passo "Configuracao do REA"
 sed -n '2,$p' "$EXTRAS/rea.env" | sed 's/^/   /'
 
 # ------------------------------------------------------------------ skills
-passo "Skills (REA e Ponytail) para o OpenCode e o Claude Code"
+passo "Skills (REA, Ponytail e seguranca) para o OpenCode e o Claude Code"
 SK="$HOME_U/.claude/skills"
 install -d -o "$USUARIO" -g "$USUARIO" "$HOME_U/.claude" "$SK"
 liga_skill() {   # $1 pasta da skill, $2 nome
