@@ -21,6 +21,8 @@ Fica em `LLM_HX/4 - Agente (tarefas longas)`. Roda numa distro WSL separada (Age
 
 Os scripts do Windows e o `config.json` (pausa do pregão, modelo e agente padrão) ficam em `LLM_HX/9 - Sistema (nao mexer)/agente/`. A subpasta `wsl/` vai para `/opt/agente-hx` dentro da distro; os atalhos levam a versão nova sozinhos quando o kit muda. O guia completo é o `COMO-USAR.txt` da pasta do agente.
 
+O modelo indicado para o agente é o Qwen3.6-35B-A3B oficial, que o `INSTALAR-ATUALIZAR` baixa; as versões abliterated erram mais nas chamadas de ferramenta. O molde de conversa original dos Qwen 3.5 em diante recusa uma segunda mensagem de sistema, e o OpenCode e o Claude Code mandam essa mensagem: cada pedido voltava com erro 500 e os agentes repetiam até desistir. Por isso o `1-LIGAR-SERVIDOR` liga o llama-server com um molde corrigido (`agente/templates/`), que põe essa mensagem no lugar em que ela chegou. Para um modelo novo, ele confere o molde no primeiro uso e, se precisar, corrige e religa uma vez.
+
 Plugins e MCPs (`wsl/extras/`, instalados sozinhos na distro): REA para engenharia reversa (comando, servidor MCP no modo chat e skill), com o Ghidra e o JADX copiados do `C:\tools` e o Java 21; as skills do Ponytail (licença MIT); o Pyright, com o plugin `pyright-lsp` no Claude Code; e bibliotecas Python para Word, Excel e PDF. O Node.js e os pacotes npm são baixados na instalação e não ficam neste repositório.
 
 ## Restaurar

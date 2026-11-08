@@ -1,0 +1,1 @@
+Qwen3.6-35B-A3B-Abliterated-Heretic-Q4_K_M.gguf|21166758336|corrigido

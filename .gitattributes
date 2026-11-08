@@ -6,3 +6,4 @@
 *.sh -text
 *.md -text
 gitignore -text
+*.jinja -text
