@@ -81,6 +81,20 @@ navegação ficam desligadas e no chat ele pede antes de abrir um site.
                            ao chamar ferramentas
    gemma4-12b-heretic      o mais rápido, mas se perde mais em tarefas longas
    qwen38-35b-a3b-apex     versão modificada; pode se repetir em respostas longas
+   qwen3-coder-30b-a3b     OFICIAL - especialista em código da Qwen; chama
+                           ferramentas bem (atalho 5 em "1 - Texto")
+   qwen3-coder-30b-a3b-heretic
+                           especialista em código, versão destravada: erra
+                           mais ao chamar ferramentas (atalho 6)
+   gpt-oss-20b             OFICIAL (OpenAI) - menor e mais rápido, bom para
+                           alternar (atalho 7)
+   gpt-oss-20b-heretic     destravado (merge experimental): o menos
+                           previsível; para testes, não para trabalho
+                           sério no agente (atalho 8)
+
+ Os quatro últimos também baixam com o INSTALAR-ATUALIZAR. Antes
+ disso, aparecem no fim do menu do 1-LIGAR-SERVIDOR, em "Ainda nao
+ baixados", sem número; depois de baixados, ganham número sozinhos.
 
  O agente usa contexto de 64K tokens. Os atalhos de "1 - Texto
  (LLMs)" continuam com 32K (era isso o "excede o contexto

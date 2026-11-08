@@ -60,6 +60,21 @@ export OPENCODE_DISABLE_AUTOUPDATE=1
 export DISABLE_AUTOUPDATER=1
 EOF
 
+# Regras que valem em todo projeto, nos dois agentes: economizar contexto do modelo local e usar o REA
+# pelo comando. Um arquivo seu (sem a marca do kit na 1a linha) nao e trocado.
+passo "Regras globais do agente (OpenCode e Claude Code)"
+REGRAS=/opt/agente-hx/prompts/regras-globais.md
+MARCA='<!-- agente-hx: regras globais'
+install -d -o "$USUARIO" -g "$USUARIO" "/home/$USUARIO/.config" "/home/$USUARIO/.config/opencode" "/home/$USUARIO/.claude"
+for alvo in "/home/$USUARIO/.config/opencode/AGENTS.md" "/home/$USUARIO/.claude/CLAUDE.md"; do
+  if [ -e "$alvo" ] && ! head -n 1 "$alvo" | grep -qF "$MARCA"; then
+    echo "  $alvo: ja tem um arquivo seu, deixei como esta"
+    continue
+  fi
+  install -m 644 -o "$USUARIO" -g "$USUARIO" "$REGRAS" "$alvo"
+  echo "  ok: $alvo"
+done
+
 if [ $SO_SCRIPTS -eq 0 ]; then
   passo "git do agente"
   runuser -l "$USUARIO" -c 'git config --global user.name "Agente HX"; git config --global user.email "agente@local"; git config --global init.defaultBranch main'

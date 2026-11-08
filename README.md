@@ -27,6 +27,8 @@ Plugins e MCPs (`wsl/extras/`, instalados sozinhos na distro): REA para engenhar
 
 O servidor MCP do REA fica desligado: ele anuncia 207 ferramentas, uns 60 mil tokens mesmo com os esquemas compactos, quase todo o contexto de 64 mil do modelo local. Com ele ligado, cada passo do agente vinha seguido de um pedido extra de cerca de um minuto, e o agente quase não avançava. Para ligar mesmo assim, use `AGENTE_HX_REA_MCP=1` (só faz sentido com um contexto bem maior).
 
+As regras que valem em todo projeto, nos dois agentes (economizar o contexto do modelo local e usar o REA pelo comando), ficam em `wsl/prompts/regras-globais.md`. A instalação as copia para `~/.config/opencode/AGENTS.md` e `~/.claude/CLAUDE.md`, dentro da distro. Um desses arquivos trocado por um seu (sem a marca do kit na primeira linha) não é substituído.
+
 ## Restaurar
 
 Copie cada pasta de volta para o lugar indicado na tabela. Os modelos e o ComfyUI precisam ser baixados de novo; o `LLM_HX/1 - Texto (LLMs)/INSTALAR-ATUALIZAR.bat` instala ou atualiza o llama.cpp e os modelos de texto. A distro do agente (C:\LLM\Agente) não fica aqui: o `0-INSTALAR-AGENTE.bat` cria uma nova.
